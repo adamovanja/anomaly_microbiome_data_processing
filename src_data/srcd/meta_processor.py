@@ -419,3 +419,23 @@ def save_file(df_md, path2data, tag):
         path2ids = os.path.join(path2runids, f"{id}.tsv")
         print(f"Saved unique project IDs to: {path2ids}")
         df_run_ids.to_csv(path2ids, sep="\t", index=False)
+
+
+def transform_to_q2metadata(df):
+    """Function that replaces column types not supported in Q2 with strings and
+    returns respective Q2 metadata"""
+    df = df.replace({True: "True", False: "True"}).copy()
+
+    # convert boolean to string
+    for col in df.columns:
+        values_col = df[col].unique().tolist()
+        if "True" in values_col or "False" in values_col:
+            df[col] = df[col].astype("str")
+
+    # convert date to string
+    df["collection_date"] = df["collection_date"].astype("str")
+
+    # transform to metadata artifact
+    q2_md = q2.Metadata(df)
+
+    return q2_md

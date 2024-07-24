@@ -1,5 +1,5 @@
 # anomaly_microbiome_data_processing
-
+This repos processes the microbial feature tables as needed for the anomaly detection usecase.
 
 ## Setup
 To fetch and preprocess the metadata and sequences of the cohort, we suggest you set up a conda environment as follows:
@@ -23,8 +23,30 @@ vdb-config -i
 vdb-config --proxy <your proxy URL> --proxy-disable no
 ```
 ## Creating the processed sequences and metadata 
-Run in your terminal:
+
+### Get metadata
+To fetch and process the metadata run:
 ````
 python fetch_n_process_metadata.py
 ````
 Beware: When running this command for the first time all metadata and the raw amplicon nucleotide sequences need to be fetched from NCBI SRA. This takes roughly 20min on a MacOS with `n_jobs=6`. Also, due to the restrictions of some journal's website, not all of the required supplementary material can be fetched programmatically. In this case, follow the ValueError instructions and re-execute the above command.
+
+### Get sequences
+To fetch and process the respective sequences insert the tag outputted at the end of the previous metadata script as `$TAG` and run:
+
+````
+python fetch_n_process_sequences.py --tag $TAG
+````
+Beware: Fetching and processing raw nucleotide sequences takes long (~15 hrs) and requires ~35 GB of storage space. 
+
+fetching: 15 hrs + 35 GB
+trimming: 
+
+### Create feature table used for modelling
+Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before:
+````
+python create_feature_table.py --tag $TAG
+````
+
+### Description of the resulting feature table
+... can be found in the notebook `describe_dataset.ipynb`

@@ -14,11 +14,14 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 def fetch_n_process_metadata(
-    bioproject_id: str, study_map: dict, email: str = "my@mail.com", n_jobs: int = 6
+    bioproject_id: str,
+    study_map: dict,
+    tag: str,
+    path2data: str = "../data/raw_data/",
+    email: str = "my@mail.com",
+    n_jobs: int = 6,
 ):
     # setup
-    tag = datetime.today().strftime("%Y%m%d")
-    path2data = "../data/raw_data/"
     if not os.path.exists(path2data):
         os.makedirs(path2data)
 
@@ -117,4 +120,7 @@ def fetch_n_process_metadata(
 if __name__ == "__main__":
     bioproject_id_vat19 = "PRJNA497734"
     study_map = {"vatanen19": [bioproject_id_vat19]}
-    fetch_n_process_metadata(bioproject_id_vat19, study_map)
+    tag = datetime.today().strftime("%Y%m%d")
+
+    fetch_n_process_metadata(bioproject_id_vat19, study_map, tag)
+    print(f"Tag to be used to fetch respective sequences: {tag}")

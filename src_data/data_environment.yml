@@ -28,5 +28,6 @@ dependencies:
   - seaborn
   - scipy
   - shapely>=1.8
+  - xlrd>=2.0.1
   - pip:
     - lxml

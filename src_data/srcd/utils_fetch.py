@@ -50,6 +50,7 @@ def _fetching_programmatically_not_allowed(url, filedest):
 
 
 def _fetch_all_supp_material(path2data):
+    paths_dict = {}
     dest_suppmat = os.path.join(path2data, "supp_material")
     _make_dirs(dest_suppmat)
 
@@ -60,7 +61,7 @@ def _fetch_all_supp_material(path2data):
         "art%3A10.1038%2Fs41564-018-0321-5/MediaObjects/"
         "41564_2018_321_MOESM3_ESM.xlsx"
         _fetch_n_store_excel_file(url_all, filedest_all)
-
+    paths_dict["all"] = filedest_all
     # get subcohort abx: Yassour16 metadata
     path_abx = os.path.join(dest_suppmat, "abx_md")
     _make_dirs(path_abx)
@@ -69,7 +70,7 @@ def _fetch_all_supp_material(path2data):
         url_abx = "https://www.science.org/doi/suppl/10.1126/scitranslmed.aad0917/"
         "suppl_file/8-343ra81_table_s1.zip"
         _fetching_programmatically_not_allowed(url_abx, filedest_abx)
-
+    paths_dict["abx"] = filedest_abx
     # get subcohort karelia
     path_karelia = os.path.join(dest_suppmat, "karelia_md")
     _make_dirs(path_karelia)
@@ -78,6 +79,7 @@ def _fetch_all_supp_material(path2data):
         url_karelia = "https://www.cell.com/cms/10.1016/j.cell.2016.04.007/"
         "attachment/a61300b3-0fd7-43b1-acfc-4accd7e538de/mmc2.xlsx"
         _fetching_programmatically_not_allowed(url_karelia, filedest_karelia)
+    paths_dict["karelia"] = filedest_karelia
 
     # get subcohort t1d
     path_t1d = os.path.join(dest_suppmat, "t1d_md")
@@ -87,3 +89,6 @@ def _fetch_all_supp_material(path2data):
         url_t1d = "https://www.cell.com/cms/10.1016/j.chom.2015.01.001/"
         "attachment/1f0883f8-1df7-447d-a47b-c1aa2bb2bbaf/mmc2.xlsx"
         _fetching_programmatically_not_allowed(url_t1d, filedest_t1d)
+    paths_dict["t1d"] = filedest_t1d
+
+    return paths_dict

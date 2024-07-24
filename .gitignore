@@ -1,0 +1,32 @@
+__pycache__/
+.vscode/
+*.code-workspace
+.DS_Store
+.idea/
+
+tests/*
+
+!data/
+data/*
+!data/original_data/
+
+models/
+
+plots/
+
+src/__pycache__/
+src/configs/models/
+src/configs/config_AD*.py
+src/wandb/
+
+test.py
+
+*.egg-info/
+.installed.cfg
+*.egg
+
+# supp material from journals mustn't be tracked
+supp_material/*
+
+# wip file
+test_wip.ipynb

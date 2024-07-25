@@ -35,3 +35,4 @@ test_wip.ipynb
 slurm_md.sh
 slurm_seq.sh
 *_out.txt
+x_*

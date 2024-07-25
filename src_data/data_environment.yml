@@ -10,14 +10,17 @@ dependencies:
   - geopandas
   - qiime2
   - q2cli
+  - q2-alignment
   - q2-diversity
   - q2-feature-classifier
   - q2-feature-table
   - q2-metadata
+  - q2-phylogeny
   - q2-dada2
   - q2-demux
   - q2-cutadapt
   - q2-vsearch
+  - rescript
   - isort
   - imageio
   - ipykernel

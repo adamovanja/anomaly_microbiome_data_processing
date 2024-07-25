@@ -30,16 +30,16 @@ To fetch and process the metadata run:
 cd src_data
 python fetch_n_process_metadata.py --email your@mail.com --n_threads 20
 ````
-Beware: When running this command for the first time all metadata and the raw amplicon nucleotide sequences need to be fetched from NCBI SRA. This takes roughly 20min on an intel-based MacOS with `n_threads=6` and 10 min on a HPC with `n_threads=30`. Also, due to the restrictions of some journal's website, not all of the required supplementary material can be fetched programmatically. In this case, follow the ValueError instructions and re-execute the above command.
+Beware: When running this command for the first time all metadata and the raw amplicon nucleotide sequences need to be fetched from NCBI SRA. This takes roughly 20min on an intel-based MacOS with `n_threads=6` and 5 min on a HPC with `n_threads=30`. Also, due to the restrictions of some journal's website, not all of the required supplementary material can be fetched programmatically. In this case, follow the ValueError instructions and re-execute the above command.
 
 ### Get sequences
 To fetch and process the respective sequences insert the tag outputted at the end of the previous metadata script as `$TAG` and run:
 
 ````
 cd src_data
-python fetch_n_process_sequences.py --tag $TAG --n_threads 30
+python fetch_n_process_sequences.py --tag $TAG --n_threads 50
 ````
-Beware: Fetching and processing raw nucleotide sequences takes long and requires ~35 GB of storage space. As a references here is the approximate duration for each step performed on HPC with 30 threads selected:
+Beware: Fetching and processing raw nucleotide sequences requires ~40 GB of storage space. The processing time depends on your computational resources - as a reference here is the approximate duration for each step performed on HPC with 50 CPUs (Memory per CPU=4096MB) and 50 threads selected:
 
 fetching: 
 trimming: 

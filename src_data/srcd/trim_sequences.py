@@ -118,6 +118,7 @@ def trim_sequences(path2md, path2seq, threads):
                 # multiple subcohorts available - separately summarize to
                 # find accurate trim_length:
                 for cohort in unique_subcohorts:
+                    print(cohort)
                     # get reads of study subcohort only
                     md_cohort = df_study[df_study["study_subcohort"] == cohort].copy()
                     (seq_cohort,) = demux.actions.filter_samples(

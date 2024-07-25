@@ -1,3 +1,4 @@
+import argparse
 import os
 import warnings
 from datetime import datetime
@@ -17,9 +18,9 @@ def fetch_n_process_metadata(
     bioproject_id: str,
     study_map: dict,
     tag: str,
-    path2data: str = "../data/raw_data/",
     email: str = "my@mail.com",
     n_jobs: int = 6,
+    path2data: str = "../data/raw_data/",
 ):
     # setup
     if not os.path.exists(path2data):
@@ -122,5 +123,20 @@ if __name__ == "__main__":
     study_map = {"vatanen19": [bioproject_id_vat19]}
     tag = datetime.today().strftime("%Y%m%d")
 
-    fetch_n_process_metadata(bioproject_id_vat19, study_map, tag)
+    # get user inputs
+    parser = argparse.ArgumentParser(description="Fetch and process metadata.")
+    parser.add_argument(
+        "--email",
+        type=str,
+        required=True,
+        help="Email for fetching sequences from NCBI SRA.",
+    )
+    parser.add_argument(
+        "--n_threads", type=int, required=True, help="Number of threads to use."
+    )
+    args = parser.parse_args()
+    fetch_n_process_metadata(
+        bioproject_id_vat19, study_map, tag, args.email, args.n_threads
+    )
+
     print(f"Tag to be used to fetch respective sequences: {tag}")

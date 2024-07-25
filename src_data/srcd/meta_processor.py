@@ -433,7 +433,8 @@ def transform_to_q2metadata(df):
             df[col] = df[col].astype("str")
 
     # convert date to string
-    df["collection_date"] = df["collection_date"].astype("str")
+    if "collection_date" in df.columns:
+        df["collection_date"] = df["collection_date"].astype("str")
 
     # transform to metadata artifact
     q2_md = q2.Metadata(df)

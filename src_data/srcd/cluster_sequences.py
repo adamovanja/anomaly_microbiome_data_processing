@@ -2,8 +2,6 @@
 Module to cluster sequences of each study with closed-reference
 clustering
 """
-# todo: combine this with d_trim_sequences.py & d_denoise_sequences.py
-
 import argparse
 import os
 import subprocess
@@ -11,7 +9,7 @@ import subprocess
 import pandas as pd
 import qiime2 as q2
 from qiime2.plugins import vsearch
-from src.d_denoise_sequences import save_artifact
+from srcd.denoise_sequences import save_artifact
 
 
 def parse_arguments():

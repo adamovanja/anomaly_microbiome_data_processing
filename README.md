@@ -27,14 +27,16 @@ vdb-config --proxy <your proxy URL> --proxy-disable no
 ### Get metadata
 To fetch and process the metadata run:
 ````
+cd src_data
 python fetch_n_process_metadata.py --email your@mail.com --n_threads 20
 ````
-Beware: When running this command for the first time all metadata and the raw amplicon nucleotide sequences need to be fetched from NCBI SRA. This takes roughly 20min on a MacOS with `n_threads=6` and 10 min on a HPC with `n_threads=20`. Also, due to the restrictions of some journal's website, not all of the required supplementary material can be fetched programmatically. In this case, follow the ValueError instructions and re-execute the above command.
+Beware: When running this command for the first time all metadata and the raw amplicon nucleotide sequences need to be fetched from NCBI SRA. This takes roughly 20min on an intel-based MacOS with `n_threads=6` and 10 min on a HPC with `n_threads=30`. Also, due to the restrictions of some journal's website, not all of the required supplementary material can be fetched programmatically. In this case, follow the ValueError instructions and re-execute the above command.
 
 ### Get sequences
 To fetch and process the respective sequences insert the tag outputted at the end of the previous metadata script as `$TAG` and run:
 
 ````
+cd src_data
 python fetch_n_process_sequences.py --tag $TAG --n_threads 30
 ````
 Beware: Fetching and processing raw nucleotide sequences takes long and requires ~35 GB of storage space. As a references here is the approximate duration for each step performed on HPC with 30 threads selected:
@@ -47,8 +49,9 @@ clustering:
 ### Create feature table used for modelling
 Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before:
 ````
+cd src_data
 python create_feature_table.py --tag $TAG
 ````
 
 ### Description of the resulting feature table
-... can be found in the notebook `describe_dataset.ipynb`
+... can be found in the notebook `describe_dataset.ipynb`.

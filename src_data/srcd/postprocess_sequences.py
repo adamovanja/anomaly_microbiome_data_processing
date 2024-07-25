@@ -1,11 +1,10 @@
 # Functions to process OTU sequences
 import os
 import subprocess
+
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import qiime2 as q2
-import skbio
 from qiime2.plugins import diversity, feature_table
 
 plt.rcParams.update({"font.family": "DejaVu Sans"})
@@ -99,11 +98,11 @@ def get_relative_abundance(
 
 
 def _load_silva_phylo_tree(path_to_get):
-    path2tree = os.path.join(path_to_get, "silva-138.1-ssu-nr99-seqs-515f-806r-uniq-rooted-tree.qza")
+    path2tree = os.path.join(
+        path_to_get, "silva-138.1-ssu-nr99-seqs-515f-806r-uniq-rooted-tree.qza"
+    )
     if not os.path.isfile(path2tree):
-        command = (
-        f"srcd/get_silva_data.sh {path_to_get} 6"
-        )
+        command = f"srcd/get_silva_data.sh {path_to_get} 6"
         subprocess.run(command, shell=True)
 
     return q2.Artifact.load(path2tree)

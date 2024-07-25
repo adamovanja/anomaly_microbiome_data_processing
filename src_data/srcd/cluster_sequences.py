@@ -25,9 +25,7 @@ def load_reference_seqs(path_to_data, filename):
     """Loads or creates SILVA reference sequences and related files"""
     path2ref = os.path.join(path_to_data, filename)
     if not os.path.isfile(path2ref):
-        command = (
-        f"srcd/get_silva_data.sh {path_to_data} 6"
-        )
+        command = f"srcd/get_silva_data.sh {path_to_data} 6"
         subprocess.run(command, shell=True)
 
     return q2.Artifact.load(path2ref)
@@ -46,7 +44,9 @@ def cluster_sequences_one_study(study_cohort, path2seq, threads):
         # read representative sequences table
         repseq = q2.Artifact.load(os.path.join(path2seq, f"repseq_{study_cohort}.qza"))
         # read reference sequences
-        ref = load_reference_seqs(path2seq, "silva-138.1-ssu-nr99-seqs-515f-806r-uniq.qza")
+        ref = load_reference_seqs(
+            path2seq, "silva-138.1-ssu-nr99-seqs-515f-806r-uniq.qza"
+        )
 
         # closed-reference clustering
         (

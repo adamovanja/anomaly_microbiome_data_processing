@@ -6,9 +6,11 @@ __pycache__/
 
 tests/*
 
-!data/
 data/*
 !data/original_data/
+!data/raw_data/
+data/raw_data/*
+!data/raw_data/trunc_len.json
 
 models/
 
@@ -30,3 +32,7 @@ supp_material/*
 
 # wip file
 test_wip.ipynb
+slurm_md.sh
+slurm_seq.sh
+*_out.txt
+x_*

@@ -13,7 +13,7 @@ def _fetch_metadata(path2data, ids, email, n_jobs):
     path2failed = os.path.join(path2data, "metadata_failed_runs.qza")
 
     if not os.path.isfile(path2md):
-        print("Fetching metadata (takes roughly 20 min)...")
+        print("Fetching metadata...")
         meta, failed = mproc.fetch_metadata(ids, email, n_jobs, path2md, path2failed)
         assert failed.shape[0] == 0
         print(f"Metadata was fetched and saved to file {path2md}")

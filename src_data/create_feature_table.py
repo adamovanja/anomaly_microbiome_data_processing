@@ -57,6 +57,7 @@ def filter_metadata(path_md):
         "abx_any_last_dur_days",
         "abx_any_cumcount",
         "abx_any_cumdur_days",
+        # todo: remove broad + narrow grouping here
         # abx broad
         "abx_broad_last_t_dmonths",
         "abx_broad_last_dur_days",

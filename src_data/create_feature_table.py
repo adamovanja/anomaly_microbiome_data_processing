@@ -118,21 +118,21 @@ def find_enteropathogens(df_taxonomy):
     # find genus level enterophathogenic reads
     g_groups_enteropathogenic = [
         "g__Clostridium",
-        "g__Salmonella",  # none present
-        "g__Clostridioides",  # very few
+        "g__Salmonella",
+        "g__Clostridioides",
         "g__Escherichia",
-        "g__Shigella",  # none present
+        "g__Shigella",
         "g__Streptococcus",
     ]
 
-    g_groups_enteropathogens = []
+    g_enteropathogens = []
     for genus in g_groups_enteropathogenic:
-        g_groups_enteropathogens += df_taxonomy[
+        g_enteropathogens += df_taxonomy[
             df_taxonomy["Taxon"].str.contains(genus)
         ].index.tolist()
-    g_groups_enteropathogens = list(set(g_groups_enteropathogens))
+    g_enteropathogens = list(set(g_enteropathogens))
 
-    return {"family": f_enterobacteriaceae, "genus": g_groups_enteropathogens}
+    return {"family": f_enterobacteriaceae, "genus": g_enteropathogens}
 
 
 def calculate_bootstrapped_alpha_metrics(md_df, freq_df, path_to_data, n=500):

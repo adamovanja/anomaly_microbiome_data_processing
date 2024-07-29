@@ -56,6 +56,7 @@ qiime feature-classifier fit-classifier-naive-bayes \
 # build reference rooted phylogenetic tree for usage with alpha diversity
 qiime alignment mafft \
   --i-sequences "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq.qza" \
+  --p-n-threads $2 \
   --o-alignment "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-aligned.qza"
 qiime alignment mask \
   --i-alignment "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-aligned.qza" \

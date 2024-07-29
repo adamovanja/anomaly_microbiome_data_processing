@@ -1,5 +1,6 @@
 import argparse
 import os
+import warnings
 
 import pandas as pd
 from srcd.postprocess_sequences import (
@@ -11,6 +12,8 @@ from srcd.postprocess_sequences import (
 )
 from srcd.utils import filter_md_by_ft
 from srcd.utils_tax import perform_taxonomic_classification
+
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 def filter_metadata(path_md):

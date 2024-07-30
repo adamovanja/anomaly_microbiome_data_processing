@@ -138,7 +138,7 @@ def find_enteropathogens(df_taxonomy):
     return {"family": f_enterobacteriaceae, "genus": g_enteropathogens}
 
 
-def calculate_bootstrapped_alpha_metrics(md_df, freq_df, path_to_data, n=500):
+def calculate_bootstrapped_alpha_metrics(md_df, freq_df, path_to_data, n_threads, n=500):
     # rarefaction depth was previously evaluated with this command:
     # diversity.actions.alpha_rarefaction(freq_art, max_depth=10000, steps=20,
     # metadata=transform_to_q2metadata(md_df))
@@ -147,7 +147,7 @@ def calculate_bootstrapped_alpha_metrics(md_df, freq_df, path_to_data, n=500):
     ls_div_metrics = ["shannon", "observed_features", "faith_pd"]
     for div_metric in ls_div_metrics:
         alpha_mean_div = bootstrapped_alpha_div(
-            div_metric, freq_df, rarefaction_depth, path_to_data, n=n
+            div_metric, freq_df, rarefaction_depth, path_to_data, n_threads, n=n
         )
         alpha_all = alpha_all.merge(
             alpha_mean_div.to_frame(), left_index=True, right_index=True
@@ -171,7 +171,7 @@ def get_relative_abund_n_sampling_depth(md_df, freq_df):
     return md_df, freq_df
 
 
-def create_feature_table(tag, path_to_data="../data/raw_data"):
+def create_feature_table(tag, n_threads, path_to_data="../data/raw_data"):
     # filename of resulting datasets of this notebook
     path_to_ft = "../data/original_data"
     if not os.path.exists(path_to_ft):
@@ -195,7 +195,7 @@ def create_feature_table(tag, path_to_data="../data/raw_data"):
     enteropathogens = find_enteropathogens(df_taxonomy)
 
     # calculate and add bootstrapped diversity metrics
-    md_df = calculate_bootstrapped_alpha_metrics(md_df, freq_df, path_to_data)
+    md_df = calculate_bootstrapped_alpha_metrics(md_df, freq_df, path_to_data, n_threads)
 
     # get sampling depth
     md_df, freq_df = get_relative_abund_n_sampling_depth(md_df, freq_df)
@@ -234,6 +234,12 @@ if __name__ == "__main__":
         required=True,
         help="Tag of metadata and sequences to be used.",
     )
+    parser.add_argument(
+        "--n_threads",
+        type=int,
+        required=True,
+        help="Number of threads to use for building phylogenetic tree.",
+    )
     args = parser.parse_args()
 
-    create_feature_table(tag=args.tag)
+    create_feature_table(tag=args.tag, n_threads=args.n_threads)

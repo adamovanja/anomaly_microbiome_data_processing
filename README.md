@@ -33,24 +33,24 @@ python fetch_n_process_metadata.py --email your@mail.com --n_threads 20
 Beware: When running this command for the first time all metadata and the raw amplicon nucleotide sequences need to be fetched from NCBI SRA (~5-20 min). Due to the restrictions of some journal's website, not all of the required supplementary material can be fetched programmatically. In this case, follow the ValueError instructions and re-execute the above command.
 
 ### Get sequences
-To fetch and process the respective sequences insert the tag outputted at the end of the previous metadata script as `$TAG` and run:
+To fetch and process the respective sequences insert the tag outputted at the end of the previous metadata script as `$TAG`, select a number of threads `$THREADS` and run:
 
 ````
 cd src_data
-python fetch_n_process_sequences.py --tag $TAG --n_threads 50
+python fetch_n_process_sequences.py --tag $TAG --n_threads $THREADS
 ````
-Beware: Fetching and processing raw nucleotide sequences requires ~40 GB of storage space. The processing time depends on your internet connection speed and your computing power - as a reference here is the approximate duration for each step performed on HPC with ~27s/it, 50 CPUs (Memory per CPU=4096MB) and 50 threads selected:
+Beware: Fetching and processing raw nucleotide sequences requires a total of ~70 GB storage space. The processing time depends on your internet connection speed and your computing power. As a reference, here is the approximate duration for each step when performed with `n_threads 6` on a MacOS system equipped with a 2 GHz Quad-Core Intel Core i5 processor and 16 GB of 3733 MHz LPDDR4X memory:
 
-fetching: 27 hrs
-trimming: 1 hr
-denoising: tba
-clustering: tba
+fetching: 24 hrs
+trimming: 2 hrs
+denoising: 6 hrs
+clustering: 13 hrs
 
 ### Create feature table used for modelling
-Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before:
+Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before. When running this command for the first time a phylogenetic tree is build from the SILVA reference database, which requires a large amount of memory (~ 500 GB):
 ````
 cd src_data
-python create_feature_table.py --tag $TAG
+python create_feature_table.py --tag $TAG  --n_threads $THREADS
 ````
 
 ### Description of the resulting feature table

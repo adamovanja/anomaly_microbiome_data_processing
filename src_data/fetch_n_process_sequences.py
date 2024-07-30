@@ -22,16 +22,16 @@ def fetch_n_process_sequences(
 
     # trim
     path2md = f"{path_to_data}/metadata_proc_v{version}.tsv"
-    trim_sequences(path2md=path2md, path2seq=path_to_data, threads=6)
+    trim_sequences(path2md=path2md, path2seq=path_to_data, threads=n_threads)
 
     # denoise
     path_trunc_len = f"{path_to_data}/trunc_len.json"
     denoise_sequences(
-        path2md=path2md, path2trunc_len=path_trunc_len, path2seq=path_to_data, threads=6
+        path2md=path2md, path2trunc_len=path_trunc_len, path2seq=path_to_data, threads=n_threads
     )
 
     # cluster
-    cluster_sequences(path2md=path2md, path2seq=path_to_data, threads=6)
+    cluster_sequences(path2md=path2md, path2seq=path_to_data, threads=n_threads)
 
 
 if __name__ == "__main__":

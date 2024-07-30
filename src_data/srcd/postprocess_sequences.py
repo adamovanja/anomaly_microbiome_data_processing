@@ -97,19 +97,19 @@ def get_relative_abundance(
     return ft_rel
 
 
-def _load_silva_phylo_tree(path_to_get):
+def _load_silva_phylo_tree(path_to_get, n_threads):
     path2tree = os.path.join(
         path_to_get, "silva-138.1-ssu-nr99-seqs-515f-806r-uniq-rooted-tree.qza"
     )
     if not os.path.isfile(path2tree):
-        command = f"srcd/get_silva_data.sh {path_to_get} 6"
+        command = f"srcd/build_tree.sh {path_to_get} {n_threads}"
         subprocess.run(command, shell=True)
 
     return q2.Artifact.load(path2tree)
 
 
 def bootstrapped_alpha_div(
-    div_metric, freq_df, rarefaction_depth, path_to_phylo, n=100
+    div_metric, freq_df, rarefaction_depth, path_to_phylo, n_threads, n=100
 ) -> pd.Series:
     df_alpha = pd.DataFrame(index=freq_df.index)
     freq_art = q2.Artifact.import_data("FeatureTable[Frequency]", freq_df)
@@ -122,7 +122,7 @@ def bootstrapped_alpha_div(
 
         # calculating alpha diversity
         if div_metric == "faith_pd":
-            tree_art = _load_silva_phylo_tree(path_to_phylo)
+            tree_art = _load_silva_phylo_tree(path_to_phylo, n_threads)
             (i_alpha_tab,) = diversity.actions.alpha_phylogenetic(
                 table=rarefied_table, metric=div_metric, phylogeny=tree_art
             )
@@ -139,24 +139,4 @@ def bootstrapped_alpha_div(
     # calculate mean over all iterations
     alpha_all = df_alpha.mean(axis=1)
     alpha_all.name = f"div_alpha_{div_metric}"
-    return alpha_all
-
-
-def calculate_bootstrapped_alpha(
-    freq_df,
-    n_boot=600,
-    rarefaction_depth=1000,
-    ls_div_metrics=["shannon", "observed_features", "faith_pd"],
-    path_to_tax_classifier="",
-):
-    alpha_all = pd.DataFrame(index=freq_df.index)
-    for div_metric in ls_div_metrics:
-        alpha_mean_div = bootstrapped_alpha_div(
-            div_metric, freq_df, rarefaction_depth, path_to_tax_classifier, n=n_boot
-        )
-        alpha_all = alpha_all.merge(
-            alpha_mean_div.to_frame(), left_index=True, right_index=True
-        )
-    # add to metadata
-    # md_df.merge(alpha_all, left_index=True, right_index=True)
     return alpha_all

@@ -53,21 +53,6 @@ qiime feature-classifier fit-classifier-naive-bayes \
     --i-reference-taxonomy "$1/silva-138.1-ssu-nr99-tax-515f-806r-derep-uniq.qza" \
     --o-classifier "$1/silva-138.1-ssu-nr99-515f-806r-classifier.qza"
 
-# build reference rooted phylogenetic tree for usage with alpha diversity
-qiime alignment mafft \
-  --i-sequences "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq.qza" \
-  --p-n-threads $2 \
-  --o-alignment "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-aligned.qza"
-qiime alignment mask \
-  --i-alignment "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-aligned.qza" \
-  --o-masked-alignment "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-aligned-masked.qza"
-qiime phylogeny fasttree \
-  --i-alignment "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-aligned-masked.qza" \
-  --o-tree "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-unrooted-tree.qza"
-qiime phylogeny midpoint-root \
-  --i-tree "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-unrooted-tree.qza" \
-  --o-rooted-tree "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-rooted-tree.qza"
-
 # remove unneeded files
 rm -r "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-unrooted-tree.qza"
 rm -r "$1/silva-138.1-ssu-nr99-seqs-515f-806r-uniq-aligned-masked.qza"

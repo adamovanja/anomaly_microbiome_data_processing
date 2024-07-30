@@ -32,7 +32,6 @@ supp_material/*
 
 # wip file
 test_wip.ipynb
-slurm_md.sh
-slurm_seq.sh
+slurm_*.sh
 *_out.txt
 x_*

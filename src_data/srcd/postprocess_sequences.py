@@ -99,10 +99,10 @@ def get_relative_abundance(
 
 def _load_silva_phylo_tree(path_to_get, n_threads):
     path2tree = os.path.join(
-        path_to_get, "silva-138.1-ssu-nr99-seqs-515f-806r-uniq-rooted-tree.qza"
+        path_to_get, "silva-138.1-ssu-nr99-seqs-rooted-tree.qza"
     )
     if not os.path.isfile(path2tree):
-        command = f"srcd/build_tree.sh {path_to_get} {n_threads}"
+        command = f"srcd/get_silva_tree.sh {path_to_get} {n_threads}"
         subprocess.run(command, shell=True)
 
     return q2.Artifact.load(path2tree)

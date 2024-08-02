@@ -1,6 +1,5 @@
 import argparse
 import subprocess
-
 from src.cluster_sequences import cluster_sequences
 from src.denoise_sequences import denoise_sequences
 from src.trim_sequences import trim_sequences
@@ -9,7 +8,7 @@ from src.check_sequences import check_sequences
 
 def _fetch_sequences(n_threads, path_to_data):
     command = (
-        f"../src/fetch_sequences.sh {path_to_data}/runids"
+        f"../src/fetch_sequences.sh {path_to_data}/runids "
         f"{path_to_data}  {n_threads}"
     )
     subprocess.run(command, shell=True)

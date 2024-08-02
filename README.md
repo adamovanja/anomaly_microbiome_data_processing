@@ -53,5 +53,13 @@ cd src_data
 python create_feature_table.py --tag $TAG  --n_threads $THREADS
 ````
 
-### Description of the resulting feature table
+### Down-stream data analyses
+
+#### Description of the resulting feature table
 ... can be found in the notebook `src_data/describe_dataset.ipynb`.
+
+#### Analysis of matched alpha diversity after antibiotics exposure
+... can be found in the notebook `src_data/describe_matched_alpha.ipynb`.
+
+#### Description of sequencing length and sample counts
+... after each sequence processing step can be found in the notebook `src_data/describe_sequences.ipynb`.

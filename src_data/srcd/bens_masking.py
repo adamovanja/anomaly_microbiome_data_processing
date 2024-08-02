@@ -1,6 +1,4 @@
 import argparse
-import os
-
 import numpy as np
 import skbio
 from q2_types.feature_data import DNAIterator
@@ -39,7 +37,8 @@ def bens_masking(file):
     num_ok = 1907
     ix = num_gaps <= seq_array.shape[0] - num_ok
     print(
-        f"Keeping {ix.sum()} columns that are less than {100 - num_ok/seq_array.shape[0]*100:.2f}% gaps"
+        f"Keeping {ix.sum()} columns that are less than "
+        f"{100 - num_ok/seq_array.shape[0]*100:.2f}% gaps"
     )
 
     masked = skbio.alignment.TabularMSA(s[ix] for s in silva_aln.view(DNAIterator))

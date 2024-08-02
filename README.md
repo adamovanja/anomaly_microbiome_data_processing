@@ -26,7 +26,8 @@ vdb-config --proxy <your proxy URL> --proxy-disable no
 ### Get metadata
 To fetch and process the metadata run:
 ````
-python scripts/fetch_n_process_metadata.py --email your@mail.com --n_threads 20
+cd scripts
+python fetch_n_process_metadata.py --email your@mail.com --n_threads 20
 ````
 Beware: When running this command for the first time all metadata and the raw amplicon nucleotide sequences need to be fetched from NCBI SRA (~5-20 min). Due to the restrictions of some journal's website, not all of the required supplementary material can be fetched programmatically. In this case, follow the ValueError instructions and re-execute the above command.
 
@@ -34,19 +35,26 @@ Beware: When running this command for the first time all metadata and the raw am
 To fetch and process the respective sequences insert the tag outputted at the end of the previous metadata script as `$TAG`, select a number of threads `$THREADS` and run:
 
 ````
-python scripts/fetch_n_process_sequences.py --tag $TAG --n_threads $THREADS
+cd scripts
+python fetch_n_process_sequences.py --tag $TAG --n_threads $THREADS
 ````
 Beware: Fetching and processing raw nucleotide sequences requires a total of ~70 GB storage space. The processing time depends on your internet connection speed and your computing power. As a reference, here is the approximate duration for each step when performed with `n_threads 6` on a MacOS system equipped with a 2 GHz Quad-Core Intel Core i5 processor and 16 GB of 3733 MHz LPDDR4X memory:
-
 fetching: 24 hrs
 trimming: 2 hrs
 denoising: 6 hrs
 clustering: 13 hrs
 
+And on an Ubuntu-based high-performance cluster with 200GB RAM and 50 CPU cores selected:
+fetching: 24 hrs
+trimming: x hrs
+denoising: x hrs
+clustering: x hrs
+
 ### Create feature table used for modelling
 Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before. When running this command for the first time a phylogenetic tree is build from the aligned SILVA reference sequence database, which requires ~200GB of memory:
 ````
-python scripts/create_feature_table.py --tag $TAG  --n_threads $THREADS
+cd scripts
+python create_feature_table.py --tag $TAG  --n_threads $THREADS
 ````
 
 ### Down-stream data analyses

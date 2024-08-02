@@ -98,6 +98,10 @@ def filter_sequences(path_to_data, excl_t1d_samples):
     df_taxonomy = perform_taxonomic_classification(
         path_to_data, file_tax_classifier, seq_table
     )
+    # only keep features that are in freq_df -> seq_table also contains t1d
+    # excluded
+    df_taxonomy = df_taxonomy[df_taxonomy.index.isin(freq_df.columns.tolist())].copy()
+
     mitochondria_reads = df_taxonomy[
         df_taxonomy["Taxon"].str.contains("Mitochondria")
     ].index.tolist()
@@ -124,8 +128,10 @@ def find_enteropathogens(df_taxonomy):
         "g__Salmonella",
         "g__Clostridioides",
         "g__Escherichia",
+        "g__Escherichia-Shigella",
         "g__Shigella",
         "g__Streptococcus",
+        "g__Klebsiella"
     ]
 
     g_enteropathogens = []
@@ -184,12 +190,11 @@ def create_feature_table(tag, n_threads, path_to_data="../data/raw_data"):
 
     # get and process sequences
     freq_df, df_taxonomy = filter_sequences(path_to_data, excl_t1d_samples)
-
     # filter samples from freq_df in md_df
-    print(f"Shape before filtering: {md_df.shape}")
+    print(f"Shape md_df before filtering: {md_df.shape}")
     md_df = filter_md_by_ft(md_df, freq_df)
-    print(f"Shape after filtering: {md_df.shape}")
-    print(f"Unique host count: {md_df.host_id.nunique()}")
+    print(f"Shape md_df after filtering: {md_df.shape}")
+    print(f"Unique host count in md_df: {md_df.host_id.nunique()}")
 
     # find entropathogenic reads
     enteropathogens = find_enteropathogens(df_taxonomy)
@@ -232,13 +237,13 @@ if __name__ == "__main__":
         "--tag",
         type=str,
         required=True,
-        help="Tag of metadata and sequences to be used.",
+        help="Tag of metadata to be used.",
     )
     parser.add_argument(
         "--n_threads",
         type=int,
         required=True,
-        help="Number of threads to use for building phylogenetic tree.",
+        help="Number of threads to use.",
     )
     args = parser.parse_args()
 

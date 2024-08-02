@@ -47,7 +47,7 @@ denoising: 6 hrs
 clustering: 13 hrs
 
 ### Create feature table used for modelling
-Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before. When running this command for the first time a phylogenetic tree is build from the aligned SILVA reference sequence database, which requires a large amount of memory (~ 500 GB):
+Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before. When running this command for the first time a phylogenetic tree is build from the aligned SILVA reference sequence database, which requires ~200GB of memory:
 ````
 cd src_data
 python create_feature_table.py --tag $TAG  --n_threads $THREADS

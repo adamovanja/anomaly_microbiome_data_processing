@@ -87,7 +87,7 @@ def get_relative_abundance(
     elif len(no_features) > 0:
         ft_cols = [x for x in ft.columns if x not in no_features]
     else:
-        raise ValueError("Either feature_prefix or no_features must be set")
+        ft_cols = ft.columns.tolist()
     ft_rel = ft.copy()
     ft_rel[ft_cols] = ft_rel[ft_cols].div(ft_rel[ft_cols].sum(axis=1), axis=0)
 
@@ -99,10 +99,10 @@ def get_relative_abundance(
 
 def _load_silva_phylo_tree(path_to_get, n_threads):
     path2tree = os.path.join(
-        path_to_get, "silva-138.1-ssu-nr99-seqs-rooted-tree.qza"
+        path_to_get, "silva-138.1-ssu-nr99-seqs-515f-806r-uniq-rooted-tree-proc-ben.qza"
     )
     if not os.path.isfile(path2tree):
-        command = f"srcd/get_silva_tree.sh {path_to_get} {n_threads}"
+        command = f"srcd/build_silva_v4_tree.sh {path_to_get} {n_threads}"
         subprocess.run(command, shell=True)
 
     return q2.Artifact.load(path2tree)

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # following this tutorial we are fetching SILVA reference reads + tax. classifiers
 # https://forum.qiime2.org/t/processing-filtering-and-evaluating-the-silva-database-and-other-reference-sequence-data-with-rescript
 qiime rescript get-silva-data \

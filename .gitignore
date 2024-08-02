@@ -8,6 +8,7 @@ tests/*
 
 data/*
 !data/original_data/
+data/original_data/*
 !data/raw_data/
 data/raw_data/*
 !data/raw_data/trunc_len.json

@@ -78,7 +78,7 @@ def load_classifier(
 ) -> q2.Artifact:
     path2save = os.path.join(path_to_tax_classifier, file_tax_classifier)
     if not os.path.isfile(path2save):
-        command = f"srcd/get_silva_data.sh {path_to_tax_classifier} 6"
+        command = f"srcd/get_silva_reads_n_classifier.sh {path_to_tax_classifier} 6"
         subprocess.run(command, shell=True)
 
     return q2.Artifact.load(path2save)

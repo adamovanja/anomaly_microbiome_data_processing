@@ -25,7 +25,7 @@ def load_reference_seqs(path_to_data, filename):
     """Loads or creates SILVA reference sequences and related files"""
     path2ref = os.path.join(path_to_data, filename)
     if not os.path.isfile(path2ref):
-        command = f"srcd/get_silva_data.sh {path_to_data} 6"
+        command = f"srcd/get_silva_reads_n_classifier.sh {path_to_data} 6"
         subprocess.run(command, shell=True)
 
     return q2.Artifact.load(path2ref)

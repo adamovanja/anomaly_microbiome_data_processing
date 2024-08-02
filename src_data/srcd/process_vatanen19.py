@@ -233,9 +233,9 @@ def add_diabetes_health(path2supp, stab):
 
     # this subject was never assessed
     stab.loc[stab["subjectID"].isin(ids_never_tested), "diag_t1d_at_sampling"] = np.NaN
-    stab.loc[stab["age_days"] >= stab["diag_t1d_age_days"], "diag_t1d_at_sampling"] = (
-        True
-    )
+    stab.loc[
+        stab["age_days"] >= stab["diag_t1d_age_days"], "diag_t1d_at_sampling"
+    ] = True
 
     t1d_during_sampling = (
         stab[["subjectID", "diag_t1d_at_sampling"]]
@@ -248,9 +248,9 @@ def add_diabetes_health(path2supp, stab):
     stab["diag_seroconv_at_sampling"] = False
 
     # this subject was never assessed
-    stab.loc[stab["subjectID"].isin(ids_never_tested), "diag_seroconv_at_sampling"] = (
-        np.NaN
-    )
+    stab.loc[
+        stab["subjectID"].isin(ids_never_tested), "diag_seroconv_at_sampling"
+    ] = np.NaN
     stab.loc[
         stab["age_days"] >= stab["diag_seroconv_age_days"],
         "diag_seroconv_at_sampling",
@@ -267,9 +267,9 @@ def add_diabetes_health(path2supp, stab):
     # all infants carry "human leukocyte antigen (HLA) haplotypes conferring
     # increased risk to autoimmune disorders"
     stab["health_status_at_sampling"] = "genetic risk autoimmune disorders"
-    stab.loc[~stab["diag_t1d_age_days"].isna(), "health_status_at_sampling"] = (
-        "t1d_diagnosis"  # developed T1D
-    )
+    stab.loc[
+        ~stab["diag_t1d_age_days"].isna(), "health_status_at_sampling"
+    ] = "t1d_diagnosis"  # developed T1D
 
     return stab
 

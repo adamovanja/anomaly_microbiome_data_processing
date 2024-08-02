@@ -6,6 +6,7 @@ from srcd.denoise_sequences import denoise_sequences
 from srcd.trim_sequences import trim_sequences
 from srcd.check_sequences import check_sequences
 
+
 def _fetch_sequences(version, n_threads, path_to_data):
     command = (
         f"srcd/fetch_sequences.sh {path_to_data}/runids_v{version} "
@@ -27,7 +28,10 @@ def fetch_n_process_sequences(
     # denoise
     path_trunc_len = f"{path_to_data}/trunc_len.json"
     denoise_sequences(
-        path2md=path2md, path2trunc_len=path_trunc_len, path2seq=path_to_data, threads=n_threads
+        path2md=path2md,
+        path2trunc_len=path_trunc_len,
+        path2seq=path_to_data,
+        threads=n_threads,
     )
 
     # cluster

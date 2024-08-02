@@ -131,7 +131,7 @@ def find_enteropathogens(df_taxonomy):
         "g__Escherichia-Shigella",
         "g__Shigella",
         "g__Streptococcus",
-        "g__Klebsiella"
+        "g__Klebsiella",
     ]
 
     g_enteropathogens = []
@@ -144,7 +144,9 @@ def find_enteropathogens(df_taxonomy):
     return {"family": f_enterobacteriaceae, "genus": g_enteropathogens}
 
 
-def calculate_bootstrapped_alpha_metrics(md_df, freq_df, path_to_data, n_threads, n=500):
+def calculate_bootstrapped_alpha_metrics(
+    md_df, freq_df, path_to_data, n_threads, n=500
+):
     # rarefaction depth was previously evaluated with this command:
     # diversity.actions.alpha_rarefaction(freq_art, max_depth=10000, steps=20,
     # metadata=transform_to_q2metadata(md_df))
@@ -200,7 +202,9 @@ def create_feature_table(tag, n_threads, path_to_data="../data/raw_data"):
     enteropathogens = find_enteropathogens(df_taxonomy)
 
     # calculate and add bootstrapped diversity metrics
-    md_df = calculate_bootstrapped_alpha_metrics(md_df, freq_df, path_to_data, n_threads)
+    md_df = calculate_bootstrapped_alpha_metrics(
+        md_df, freq_df, path_to_data, n_threads
+    )
 
     # get sampling depth
     md_df, freq_df = get_relative_abund_n_sampling_depth(md_df, freq_df)

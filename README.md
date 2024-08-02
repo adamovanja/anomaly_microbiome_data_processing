@@ -22,7 +22,7 @@ vdb-config -i
 ```shell
 vdb-config --proxy <your proxy URL> --proxy-disable no
 ```
-## Creating the processed sequences and metadata 
+## Creating the processed sequences and metadata
 
 ### Get metadata
 To fetch and process the metadata run:

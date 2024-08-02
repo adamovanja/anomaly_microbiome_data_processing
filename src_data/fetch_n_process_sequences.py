@@ -15,9 +15,7 @@ def _fetch_sequences(version, n_threads, path_to_data):
     subprocess.run(command, shell=True)
 
 
-def fetch_n_process_sequences(
-    version, n_threads, path_to_data: str = "../data/raw_data"
-):
+def fetch_n_process_sequences(version, n_threads, path_to_data: str = "../data/raw"):
     # fetch
     _fetch_sequences(version, n_threads, path_to_data)
 

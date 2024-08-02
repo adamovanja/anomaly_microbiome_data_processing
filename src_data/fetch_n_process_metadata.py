@@ -20,7 +20,7 @@ def fetch_n_process_metadata(
     tag: str,
     email: str = "my@mail.com",
     n_jobs: int = 6,
-    path2data: str = "../data/raw_data/",
+    path2data: str = "../data/raw/",
 ):
     # setup
     if not os.path.exists(path2data):
@@ -51,8 +51,11 @@ def fetch_n_process_metadata(
     # saving since this contains not only sample matched abx exposure events
     # ! since only karelia + abx have detailed abx info - only these are saved in ts
     cols2save = ["host_id", "abx_start_age_months", "abx_spectrum", "abx_duration_days"]
+    path_to_ts = path2data.replace("raw", "final")
+    if not os.path.exists(path_to_ts):
+        os.makedirs(path_to_ts)
     md_abx_all[cols2save].to_csv(
-        os.path.join(path2data, f"ts_vat19_abx_v{tag}.tsv"), sep="\t", index=False
+        os.path.join(path_to_ts, f"ts_vat19_abx_v{tag}.tsv"), sep="\t", index=False
     )
 
     # merge existing supp. material with additional abx information

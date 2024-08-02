@@ -179,9 +179,9 @@ def get_relative_abund_n_sampling_depth(md_df, freq_df):
     return md_df, freq_df
 
 
-def create_feature_table(tag, n_threads, path_to_data="../data/raw_data"):
+def create_feature_table(tag, n_threads, path_to_data="../data/raw"):
     # filename of resulting datasets of this notebook
-    path_to_ft = "../data/original_data"
+    path_to_ft = "../data/final"
     if not os.path.exists(path_to_ft):
         os.makedirs(path_to_ft)
 

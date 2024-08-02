@@ -28,6 +28,7 @@ dependencies:
   - openpyxl
   - pre-commit
   - pip
+  - ruff
   - seaborn
   - scipy
   - shapely>=1.8

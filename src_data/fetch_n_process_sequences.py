@@ -4,7 +4,7 @@ import subprocess
 from srcd.cluster_sequences import cluster_sequences
 from srcd.denoise_sequences import denoise_sequences
 from srcd.trim_sequences import trim_sequences
-
+from srcd.check_sequences import check_sequences
 
 def _fetch_sequences(version, n_threads, path_to_data):
     command = (
@@ -32,6 +32,10 @@ def fetch_n_process_sequences(
 
     # cluster
     cluster_sequences(path2md=path2md, path2seq=path_to_data, threads=n_threads)
+
+    # save stats of all processed sequences - can be viewed in
+    # describe_sequences.ipynb
+    check_sequences(path2md=path2md)
 
 
 if __name__ == "__main__":

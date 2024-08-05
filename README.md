@@ -44,14 +44,14 @@ trimming: 2 hrs
 denoising: 6 hrs
 clustering: 13 hrs
 
-And on an Ubuntu-based high-performance cluster with 200GB RAM and 50 CPU cores selected:
-fetching: 24 hrs
-trimming: x hrs
-denoising: x hrs
-clustering: x hrs
+The approximate duration on an Ubuntu-based high-performance cluster with 200GB RAM and 100 threads on 50 CPU cores selected is as follows:
+fetching: 15 hrs
+trimming: 1.5 hrs
+denoising: 2 hrs
+clustering: 1 hrs
 
 ### Create feature table used for modelling
-Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before. When running this command for the first time a phylogenetic tree is build from the aligned SILVA reference sequence database, which requires ~200GB of memory:
+Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before. When running this command for the first time a phylogenetic tree is build from the aligned SILVA reference sequence database, which requires ~120GB of RAM and 4 hrs of time with `--n_threads 10`:
 ````
 cd scripts
 python create_feature_table.py --tag $TAG  --n_threads $THREADS

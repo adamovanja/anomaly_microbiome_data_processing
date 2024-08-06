@@ -14,6 +14,8 @@ data/raw/*
 supp_material/*
 # archive
 data/archive/
+# clinical info not ignore
+!data/raw/clinical_maps_abx.xlsx
 
 results/
 

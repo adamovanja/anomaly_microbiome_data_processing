@@ -6,6 +6,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import qiime2 as q2
+
 from src import meta_processor as mproc
 from src import process_vatanen19 as proc_vatanen
 from src import process_vatanen19_abx as proc_vatanen_abx
@@ -50,7 +51,14 @@ def fetch_n_process_metadata(
 
     # saving since this contains not only sample matched abx exposure events
     # ! since only karelia + abx have detailed abx info - only these are saved in ts
-    cols2save = ["host_id", "abx_start_age_months", "abx_spectrum", "abx_duration_days"]
+    cols2save = [
+        "host_id",
+        "abx_start_age_months",
+        "abx_spectrum",
+        "abx_duration_days",
+        "abx_type",
+        "abx_reason",
+    ]
     path_to_ts = path2data.replace("raw", "final")
     if not os.path.exists(path_to_ts):
         os.makedirs(path_to_ts)

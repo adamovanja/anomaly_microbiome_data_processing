@@ -1,6 +1,7 @@
 """Module to process abx metadata of all subcohorts covered in vatanen19"""
 
 import itertools
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -225,9 +226,42 @@ def add_abx_spectrum_cumduration(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def join_unique(x):
+def join_unique_list(x):
     """Returns a sorted list of unique strings"""
     return sorted(list(set(x)))
+
+
+def join_unique(x):
+    """Returns a sorted string of unique values joined by commas"""
+    return ", ".join(sorted(set(x)))
+
+
+def _create_abx_grouping_dict(df, key_col, value_col):
+    abx_grouping_dict = defaultdict(list)
+
+    for abx_grouping, group_df in df.groupby(key_col):
+        abx_names = group_df[value_col].tolist()
+        abx_grouping_dict[abx_grouping].extend(abx_names)
+
+    return dict(abx_grouping_dict)
+
+
+def _get_abx_maps(path2map):
+    abx_name = pd.read_excel(path2map, sheet_name="abx_name")
+    map_abx_name = _create_abx_grouping_dict(abx_name, "abx_grouping", "abx_name")
+
+    abx_reason = pd.read_excel(path2map, sheet_name="abx_reason")
+    map_abx_reason = _create_abx_grouping_dict(
+        abx_reason, "reason_grouping", "abx_reason"
+    )
+    return map_abx_name, map_abx_reason
+
+
+def _map_col_to_grouping(value_name, mapping_dict):
+    for grouping, abx_names in mapping_dict.items():
+        if value_name in abx_names:
+            return grouping
+    return "Unknown"
 
 
 def process_abx_metadata(path2karelia, path2abx):
@@ -253,7 +287,8 @@ def process_abx_metadata(path2karelia, path2abx):
         df_abx_all.groupby(
             ["host_id", "abx_start_age_months", "abx_name"], as_index=False
         )
-        .agg({"abx_duration_days": "sum", "abx_reason": join_unique})
+        # join_unique_list used to remain consistent with values from clinician
+        .agg({"abx_duration_days": "sum", "abx_reason": join_unique_list})
         .copy()
     )
 
@@ -264,8 +299,22 @@ def process_abx_metadata(path2karelia, path2abx):
         not in df_abx_all["abx_spectrum"].value_counts(dropna=False).index.tolist()
     )
 
+    # get maps of abx_type and reason and map each to grouping
+    abx_name, abx_reason = _get_abx_maps("../data/raw/clinical_maps_abx.xlsx")
+    df_abx_all["abx_name"] = df_abx_all["abx_name"].str.strip()
+    df_abx_all["abx_type"] = df_abx_all["abx_name"].map(
+        lambda x: _map_col_to_grouping(x, abx_name)
+    )
+    df_abx_all["abx_reason"] = df_abx_all["abx_reason"].astype(str)
+    df_abx_all["abx_reason"] = df_abx_all["abx_reason"].str.replace("['", "")
+    df_abx_all["abx_reason"] = df_abx_all["abx_reason"].str.replace("']", "")
+    df_abx_all["abx_reason"] = df_abx_all["abx_reason"].map(
+        lambda x: _map_col_to_grouping(x, abx_reason)
+    )
+    # map 2 cases of Unknown (for hosts: E016870, T012374) to "others"
+    df_abx_all.loc[df_abx_all["abx_reason"] == "Unknown", "abx_reason"] = "Others"
     # drop not needed columns
-    df_abx_all.drop(columns=["abx_name", "abx_reason"], inplace=True)
+    df_abx_all.drop(columns=["abx_name"], inplace=True)
 
     # group same spectrum abx per host and age into one row (funfact host_id E003188
     # has special case: two times broad spectrum abx in same timeframe)
@@ -273,7 +322,13 @@ def process_abx_metadata(path2karelia, path2abx):
         df_abx_all.groupby(
             ["host_id", "abx_start_age_months", "abx_spectrum"], as_index=False
         )
-        .agg({"abx_duration_days": "sum"})
+        .agg(
+            {
+                "abx_duration_days": "sum",
+                "abx_type": join_unique,
+                "abx_reason": join_unique,
+            }
+        )
         .copy()
     )
 

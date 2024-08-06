@@ -288,8 +288,7 @@ def process_abx_metadata(path2karelia, path2abx):
             ["host_id", "abx_start_age_months", "abx_name"], as_index=False
         )
         # join_unique_list used to remain consistent with values from clinician
-        .agg({"abx_duration_days": "sum", "abx_reason": join_unique_list})
-        .copy()
+        .agg({"abx_duration_days": "sum", "abx_reason": join_unique_list}).copy()
     )
 
     # map spectrum of each abx prescribed

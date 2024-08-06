@@ -54,7 +54,6 @@ def fetch_n_process_metadata(
     cols2save = [
         "host_id",
         "abx_start_age_months",
-        "abx_spectrum",
         "abx_duration_days",
         "abx_type",
         "abx_reason",

@@ -326,9 +326,11 @@ def plot_diversity_difference(
                 diff_metric=abx_nth_samples[metric] - abx_nth_samples[f"mean_{metric}"]
             )
             plotted_metric = "diff_metric"
+            max_ylabel_ratio = 2
         else:
             # ! plot just diversity
             plotted_metric = metric
+            max_ylabel_ratio = 1.8
         x_axis = "diff_age_nth_abx"
         abx_nth_samples["diff_age_nth_abx"].replace({-0.0: 0.0}, inplace=True)
 
@@ -337,7 +339,11 @@ def plot_diversity_difference(
         )
         max_score = abx_nth_samples[plotted_metric].max()
         min_score = abx_nth_samples[plotted_metric].min()
-        axs[0].set_ylim(1.1 * min_score, 2 * max_score)
+        if min_score > 0:
+            min_ylabel_ratio = 0.0
+        else:
+            min_ylabel_ratio = 1.1
+        axs[0].set_ylim(min_ylabel_ratio * min_score, max_ylabel_ratio * max_score)
         # Define a custom color palette
         palette = ["grey"] * 3 + ["purple"] * 13
         # category needed to have consistent x-axis

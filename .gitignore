@@ -6,7 +6,6 @@ __pycache__/
 
 data/*
 !data/final/
-data/final/*
 !data/raw/
 data/raw/*
 !data/raw/trunc_len.json

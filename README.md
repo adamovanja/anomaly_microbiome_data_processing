@@ -1,5 +1,5 @@
 # Microbiome Data Processing for Anomaly Detection
-This repos contains a fully reproducible pipeline to fetch and process microbial amplicon sequences and associated metadata from 3 cohorts of the DIABIMMUNE study [*], which are used for anomaly detection in [this linked repos](https://github.com/MarkusChardonnet/Probabilistic_forecasting_for_Anomaly_Detection).
+This repos contains a fully reproducible pipeline to fetch and process microbial amplicon sequences and associated metadata from 3 cohorts of the DIABIMMUNE study [*], which are used for anomaly detection in [this linked repos](https://github.com/MarkusChardonnet/Probabilistic_forecasting_for_Anomaly_Detection). The resulting feature tables used in this project are available in the `data/final` folder.
 
 [*] [Vatanen et al. 2019](https://doi.org/10.1038/s41564-018-0321-5), [Yassour et al. 2016](https://doi.org/10.1126/scitranslmed.aad0917), [Vatanen et al. 2016](https://doi.org/10.1016/j.cell.2016.04.007), [Kostic et al. 2015](https://doi.org/10.1016/j.chom.2015.01.001)
 

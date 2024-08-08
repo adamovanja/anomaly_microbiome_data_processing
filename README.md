@@ -1,5 +1,8 @@
-# anomaly_microbiome_data_processing
-This repos processes the microbial feature tables as needed for the anomaly detection usecase.
+# Microbiome Data Processing for Anomaly Detection
+This repos contains a fully reproducible pipeline to fetch and process microbial amplicon sequences and associated metadata from 3 cohorts of the DIABIMMUNE study [*], which are used for anomaly detection in [this linked repos](https://github.com/MarkusChardonnet/Probabilistic_forecasting_for_Anomaly_Detection).
+
+[*] [Vatanen et al. 2019](https://doi.org/10.1038/s41564-018-0321-5), [Yassour et al. 2016](https://doi.org/10.1126/scitranslmed.aad0917), [Vatanen et al. 2016](https://doi.org/10.1016/j.cell.2016.04.007), [Kostic et al. 2015](https://doi.org/10.1016/j.chom.2015.01.001)
+
 
 ## Setup
 To fetch and preprocess the metadata and sequences of the cohort, we suggest you set up a conda environment as follows:
@@ -39,16 +42,20 @@ cd scripts
 python fetch_n_process_sequences.py --tag $TAG --n_threads $THREADS
 ````
 Beware: Fetching and processing raw nucleotide sequences requires a total of ~70 GB storage space. The processing time depends on your internet connection speed and your computing power. As a reference, here is the approximate duration for each step when performed with `n_threads 6` on a MacOS system equipped with a 2 GHz Quad-Core Intel Core i5 processor and 16 GB of 3733 MHz LPDDR4X memory:
-fetching: 24 hrs
-trimming: 2 hrs
-denoising: 6 hrs
-clustering: 13 hrs
+| Step       | Duration |
+|------------|----------|
+| Fetching   | 24 hrs   |
+| Trimming   | 2 hrs    |
+| Denoising  | 6 hrs    |
+| Clustering | 13 hrs   |
 
 The approximate duration on an Ubuntu-based high-performance cluster with 200GB RAM and 100 threads on 50 CPU cores selected is as follows:
-fetching: 15 hrs
-trimming: 1.5 hrs
-denoising: 2 hrs
-clustering: 1 hrs
+| Step       | Duration |
+|------------|----------|
+| Fetching   | 15 hrs   |
+| Trimming   | 1.5 hrs  |
+| Denoising  | 2 hrs    |
+| Clustering | 1 hr     |
 
 ### Create feature table used for modelling
 Once the previous commands worked successfully you can create the final feature table to be used for modelling using the same `$TAG` you used before. When running this command for the first time a phylogenetic tree is build from the aligned SILVA reference sequence database, which requires ~120GB of RAM and ~10 hrs of time with `--n_threads 10` on 20 CPU cores:
@@ -67,3 +74,6 @@ python create_feature_table.py --tag $TAG  --n_threads $THREADS
 
 #### Description of sequencing length and sample counts
 ... after each sequence processing step can be created in the notebook `scripts/describe_sequences.ipynb`.
+
+## Contact
+In case of questions or comments feel free to raise an issue in this repository.

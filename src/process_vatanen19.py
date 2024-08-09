@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+
 import src.meta_processor as mproc
 from src.process_vatanen19_abx import check_increasing_abx_cum
 
@@ -405,28 +406,16 @@ def check_n_remove_duplicates(md_both):
 
 def merge_abx_to_md(md_supp, df_abx, type: str):
     # join the two dataframes fully
-    if type in ["broad", "narrow"]:
-        df_abx = df_abx.loc[
-            df_abx["abx_spectrum"] == type,
-            ["host_id", "abx_start_age_months", "abx_duration_days"],
-        ].copy()
-        ls_nan_cols = [
-            "abx_start_age_months",
-            "abx_duration_days",
-            "diff_age_since_abx",
-        ]
-    elif type == "any":
-        ls_id = ["host_id"]
-        ls_cols = [
-            "abx_start_age_months",
-            "abx_duration_days",
-            "abx_broad_cumcount",
-            "abx_broad_cumdur_days",
-            "abx_narrow_cumcount",
-            "abx_narrow_cumdur_days",
-        ]
-        df_abx = df_abx[ls_id + ls_cols].copy()
-        ls_nan_cols = ls_cols + ["diff_age_since_abx"]
+    type = "any"
+    ls_id = ["host_id"]
+    ls_cols = [
+        "abx_start_age_months",
+        "abx_duration_days",
+        "abx_any_cumcount",
+        "abx_any_cumdur_days",
+    ]
+    df_abx = df_abx[ls_id + ls_cols].copy()
+    ls_nan_cols = ls_cols + ["diff_age_since_abx"]
 
     md_supp = md_supp.sort_values(["host_id", "age_days"]).copy()
     md_merged = pd.merge(md_supp, df_abx, how="left", on=["host_id"])
@@ -476,24 +465,9 @@ def merge_supp_w_abx(md_supp, md_abx):
     md_supp["age_months_rounded05"] = (md_supp["age_months_rounded05"] * 2).round() / 2
 
     # merge any type spectrum information to md file: last_dur_days, last_t_dmonths
-    md_merged_any = merge_abx_to_md(md_supp, md_abx, "any")
-    assert md_merged_any.shape[0] == md_supp.shape[0]
+    md_merged_any_bn = merge_abx_to_md(md_supp, md_abx, "any")
+    assert md_merged_any_bn.shape[0] == md_supp.shape[0]
 
-    # merge broad spectrum information to md file: cumcount, cumdur_days,
-    # last_dur_days, last_t_dmonths
-    md_merged_any_b = merge_abx_to_md(md_merged_any, md_abx, "broad")
-    assert md_merged_any.shape[0] == md_merged_any_b.shape[0]
-
-    # merge narrow spectrum information to md file: cumcount, cumdur_days,
-    # last_dur_days, last_t_dmonths
-    md_merged_any_bn = merge_abx_to_md(md_merged_any_b, md_abx, "narrow")
-    assert md_merged_any_b.shape[0] == md_merged_any_bn.shape[0]
-
-    # adding cumcount, cumdur_days for any type spectrum
-    for cum in ["cumcount", "cumdur_days"]:
-        md_merged_any_bn[f"abx_any_{cum}"] = (
-            md_merged_any_bn[f"abx_narrow_{cum}"] + md_merged_any_bn[f"abx_broad_{cum}"]
-        )
     # impute certain np.NaN values with 0 - only for abx cohorts (karelia + abx!)
     cols_impute = [
         x
@@ -558,14 +532,14 @@ def validate_merged_abx_entries(md_supp: pd.DataFrame) -> None:
     # host id
     check_increasing_abx_cum(
         md_supp,
-        ["broad", "narrow", "any"],
+        ["any"],
         ["cumcount", "cumdur_days"],
         "age_months_rounded05",
     )
 
     # assert that values in cumdur_days columns change only when cumcount
     # changes as well
-    for spec in ["broad", "narrow"]:
+    for spec in ["any"]:
         for col in ["cumdur_days", "cumcount"]:
             md_supp[f"abx_{spec}_{col}_shift"] = md_supp.groupby("host_id")[
                 f"abx_{spec}_{col}"

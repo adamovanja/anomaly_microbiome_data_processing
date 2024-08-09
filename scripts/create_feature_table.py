@@ -3,6 +3,7 @@ import os
 import warnings
 
 import pandas as pd
+
 from src.postprocess_sequences import (
     bootstrapped_alpha_div,
     get_merged_ft_frequency,
@@ -60,17 +61,6 @@ def filter_metadata(path_md):
         "abx_any_last_dur_days",
         "abx_any_cumcount",
         "abx_any_cumdur_days",
-        # todo: remove broad + narrow grouping here
-        # abx broad
-        "abx_broad_last_t_dmonths",
-        "abx_broad_last_dur_days",
-        "abx_broad_cumcount",
-        "abx_broad_cumdur_days",
-        # abx narrow
-        "abx_narrow_last_t_dmonths",
-        "abx_narrow_last_dur_days",
-        "abx_narrow_cumcount",
-        "abx_narrow_cumdur_days",
         # abx total count overall (used for plotting)
         "abx_max_count_ever",
     ]

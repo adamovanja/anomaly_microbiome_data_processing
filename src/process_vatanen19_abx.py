@@ -1,6 +1,7 @@
 """Module to process abx metadata of all subcohorts covered in vatanen19"""
 
 import itertools
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -100,134 +101,98 @@ def get_abx_cohabx(path2abx: str) -> pd.DataFrame:
     return abx_subcohort
 
 
-def map_abx_spectrum(abx_name: str) -> str:
-    """
-    Maps an antibiotic name to its corresponding antibiotic spectrum ('broad' or
-    'narrow'). Groupings stems from LLM phind.com with the following query:
-    "Please group the antibiotics in the below Python list according to their
-    spectrum of activity (broad vs. narrow spectrum) using sources such as WHO,
-    FDA, CDC and peer-reviewed publications from pubmed."
-
-    Parameters: abx_name (str): The name of the antibiotic to map.
-
-    Returns: str: The corresponding antibiotic spectrum ('broad' or 'narrow')
-    for the input antibiotic name.
-    """
-    # ! grouping of abx could obviously be refined with expert knowledge
-
-    broad_spectrum = [
-        "Amoxicillin",
-        "Amoxicillin and clavulanic acid",
-        "Ampicillin",
-        "Azithromycin",
-        "Azitromycin",
-        "Cefaclor",
-        "Cefadroxil",
-        "Cefalexin",
-        "Cefazolin",
-        "Cefexime",
-        "Cefotaxim",
-        "Cefotaxime",
-        "Cefprozil",
-        "Ceftriaxone",
-        "Cefuroxime",
-        "Clarithromycin",
-        "Sulfamethoxazole and trimethoprim",
-        "Trimethoprim",
-        "Trimethoprim and sulfadiazine",
-        "Trimetoprim",
-        "Trimetoprime and sulfadiazine",
-    ]
-
-    narrow_spectrum = [
-        "Benzylpenicillin",
-        "Furazidin",
-        "Gentamicin",
-        "Isoniazid",
-        "Midecamycin",
-        "Netilmicin",
-        "Nifuroxazide",
-        "Nitrofurantoin",
-        "Penicillin G",
-        "Phenoxymethylpenicillin",
-        "Systemic antibiotic NAS",
-    ]
-    abx_name = abx_name.strip()
-    if abx_name in narrow_spectrum:
-        return "narrow"
-    elif abx_name in broad_spectrum:
-        return "broad"
-    else:
-        return "unknown"
-
-
 def add_abx_spectrum_cumcount(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Adds cumulative count columns for the 'broad' and 'narrow' antibiotic
-    spectra to the input df.
+    Adds cumulative count columns for any antibiotic spectra to the input df.
 
     Parameters: df (pd.DataFrame): DataFrame containing antibiotic course data.
 
     Returns: pd.DataFrame: DataFrame with additional columns for the cumulative
-    count of courses for the 'broad' and 'narrow' antibiotic spectra.
+    count of courses for any antibiotic spectra.
     """
     df = df.sort_values(["host_id", "abx_start_age_months"])
 
-    df["spectrum_cumcount"] = df.groupby(["host_id", "abx_spectrum"]).cumcount() + 1
-    for spec in ["broad", "narrow"]:
-        col_name = f"abx_{spec}_cumcount"
+    df["spectrum_cumcount"] = df.groupby(["host_id"]).cumcount() + 1
+    spec = "any"
+    col_name = f"abx_{spec}_cumcount"
 
-        # create new column for this abx spectrum
-        df_spec = df.loc[
-            df["abx_spectrum"] == spec,
-            ["host_id", "abx_start_age_months", "spectrum_cumcount"],
-        ].copy()
-        df_spec.rename(columns={"spectrum_cumcount": col_name}, inplace=True)
-        df = pd.merge(df, df_spec, how="left", on=["host_id", "abx_start_age_months"])
+    # create new column for this abx spectrum
+    df_spec = df[["host_id", "abx_start_age_months", "spectrum_cumcount"]].copy()
+    df_spec.rename(columns={"spectrum_cumcount": col_name}, inplace=True)
+    df = pd.merge(df, df_spec, how="left", on=["host_id", "abx_start_age_months"])
 
-        # fill NaN values with last available value by host_id group
-        df[col_name] = df.groupby("host_id")[col_name].ffill()
-        # replace remaining NaN values with 0
-        df[col_name].fillna(0, inplace=True)
+    # fill NaN values with last available value by host_id group
+    df[col_name] = df.groupby("host_id")[col_name].ffill()
+    # replace remaining NaN values with 0
+    df[col_name].fillna(0, inplace=True)
     df.drop(columns=["spectrum_cumcount"], inplace=True)
     return df
 
 
 def add_abx_spectrum_cumduration(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Adds cumulative duration columns for the 'broad' and 'narrow' antibiotic
-    spectra to the input DataFrame.
+    Adds cumulative duration columns for any antibiotic spectra to the input DataFrame.
 
     Parameters: df (pd.DataFrame): DataFrame containing antibiotic course data.
 
     Returns: pd.DataFrame: DataFrame with additional columns for the cumulative
-    duration of courses for the 'broad' and 'narrow' antibiotic spectra.
+    duration of courses for any antibiotic spectra.
     """
     df = df.sort_values(["host_id", "abx_start_age_months"])
 
-    for spec in ["broad", "narrow"]:
-        col_name = f"abx_{spec}_cumdur_days"
-        # apply groupby and cumsum on 'abx_duration_days' for this spec
-        df_spec = df.loc[
-            df["abx_spectrum"] == spec,
-            ["host_id", "abx_start_age_months", "abx_duration_days"],
-        ].copy()
-        df_spec[col_name] = df_spec["abx_duration_days"].groupby(df["host_id"]).cumsum()
-        df_spec.drop(columns=["abx_duration_days"], inplace=True)
-        df = pd.merge(
-            df, df_spec, how="left", on=["host_id", "abx_start_age_months"]
-        ).copy()
+    spec = "any"
+    col_name = f"abx_{spec}_cumdur_days"
+    # apply groupby and cumsum on 'abx_duration_days' for this spec
+    df_spec = df[["host_id", "abx_start_age_months", "abx_duration_days"]].copy()
+    df_spec[col_name] = df_spec["abx_duration_days"].groupby(df["host_id"]).cumsum()
+    df_spec.drop(columns=["abx_duration_days"], inplace=True)
+    df = pd.merge(
+        df, df_spec, how="left", on=["host_id", "abx_start_age_months"]
+    ).copy()
 
-        # fill NaN values with last available value by host_id group
-        df[col_name] = df.groupby("host_id")[col_name].ffill()
-        # replace remaining NaN values with 0
-        df[col_name].fillna(0, inplace=True)
+    # fill NaN values with last available value by host_id group
+    df[col_name] = df.groupby("host_id")[col_name].ffill()
+    # replace remaining NaN values with 0
+    df[col_name].fillna(0, inplace=True)
     return df
 
 
-def join_unique(x):
+def join_unique_list(x):
     """Returns a sorted list of unique strings"""
     return sorted(list(set(x)))
+
+
+def join_unique(x):
+    """Returns a sorted string of unique values joined by commas"""
+    return ", ".join(sorted(set(x)))
+
+
+def _create_abx_grouping_dict(df, key_col, value_col):
+    abx_grouping_dict = defaultdict(list)
+
+    for abx_grouping, group_df in df.groupby(key_col):
+        abx_names = group_df[value_col].tolist()
+        abx_grouping_dict[abx_grouping].extend(abx_names)
+
+    return dict(abx_grouping_dict)
+
+
+def _get_abx_maps(path2map):
+    abx_name = pd.read_excel(path2map, sheet_name="abx_name")
+    map_abx_name = _create_abx_grouping_dict(abx_name, "abx_grouping", "abx_name")
+
+    abx_reason = pd.read_excel(path2map, sheet_name="abx_reason")
+    map_abx_reason = _create_abx_grouping_dict(
+        abx_reason, "reason_grouping", "abx_reason"
+    )
+    return map_abx_name, map_abx_reason
+
+
+def _map_col_to_grouping(value_name, mapping_dict):
+    for grouping, abx_names in mapping_dict.items():
+        if value_name in abx_names:
+            return grouping
+    return "Unknown"
 
 
 def process_abx_metadata(path2karelia, path2abx):
@@ -253,27 +218,38 @@ def process_abx_metadata(path2karelia, path2abx):
         df_abx_all.groupby(
             ["host_id", "abx_start_age_months", "abx_name"], as_index=False
         )
-        .agg({"abx_duration_days": "sum", "abx_reason": join_unique})
-        .copy()
+        # join_unique_list used to remain consistent with values from clinician
+        .agg({"abx_duration_days": "sum", "abx_reason": join_unique_list}).copy()
     )
 
-    # map spectrum of each abx prescribed
-    df_abx_all["abx_spectrum"] = df_abx_all["abx_name"].apply(map_abx_spectrum)
-    assert (
-        "unknown"
-        not in df_abx_all["abx_spectrum"].value_counts(dropna=False).index.tolist()
+    # get maps of abx_type and reason and map each to grouping
+    abx_name, abx_reason = _get_abx_maps("../data/raw/clinical_maps_abx.xlsx")
+    df_abx_all["abx_name"] = df_abx_all["abx_name"].str.strip()
+    df_abx_all["abx_type"] = df_abx_all["abx_name"].map(
+        lambda x: _map_col_to_grouping(x, abx_name)
     )
-
+    df_abx_all["abx_reason"] = df_abx_all["abx_reason"].astype(str)
+    df_abx_all["abx_reason"] = df_abx_all["abx_reason"].str.replace("['", "")
+    df_abx_all["abx_reason"] = df_abx_all["abx_reason"].str.replace("']", "")
+    df_abx_all["abx_reason"] = df_abx_all["abx_reason"].map(
+        lambda x: _map_col_to_grouping(x, abx_reason)
+    )
+    # map 2 cases of Unknown (for hosts: E016870, T012374) to "others"
+    df_abx_all.loc[df_abx_all["abx_reason"] == "Unknown", "abx_reason"] = "Others"
     # drop not needed columns
-    df_abx_all.drop(columns=["abx_name", "abx_reason"], inplace=True)
+    df_abx_all.drop(columns=["abx_name"], inplace=True)
 
     # group same spectrum abx per host and age into one row (funfact host_id E003188
     # has special case: two times broad spectrum abx in same timeframe)
     df_abx_all = (
-        df_abx_all.groupby(
-            ["host_id", "abx_start_age_months", "abx_spectrum"], as_index=False
+        df_abx_all.groupby(["host_id", "abx_start_age_months"], as_index=False)
+        .agg(
+            {
+                "abx_duration_days": "sum",
+                "abx_type": join_unique,
+                "abx_reason": join_unique,
+            }
         )
-        .agg({"abx_duration_days": "sum"})
         .copy()
     )
 
@@ -298,10 +274,11 @@ def check_increasing_abx_cum(
 
     Args:
         df (pd.DataFrame): The input DataFrame containing the antibiotic
-        metadata. spec2check (list): A list of antibiotic spectra to check (e.g.
-        ["broad", "narrow"]). cum2check (list): A list of cumulative measures to
-        check (e.g. ["count", "duration"]). age_col (str): The name of the
-        column containing the age information.
+        metadata.
+        spec2check (list): A list of antibiotic spectra to check (e.g. ["any"]).
+        cum2check (list): A list of cumulative measures to check (e.g. ["count",
+        "duration"]).
+        age_col (str): The name of the column containing the age information.
 
     Raises:
         AssertionError: If any of the cumulative measures are not continuously
@@ -329,25 +306,6 @@ def validate_abx_all(md_abx: pd.DataFrame) -> None:
     Raises:
         AssertionError: If any of the assertions fail.
     """
-    # assert that in one abx_start_age_months there shouldn't be >1 same type of
-    # abx_spectrum entry for the same host_id
-    assert (
-        md_abx[
-            [
-                "host_id",
-                "abx_start_age_months",
-                "abx_spectrum",
-                "abx_duration_days",
-            ]
-        ]
-        .groupby(["host_id", "abx_start_age_months", "abx_spectrum"])
-        .count()
-        != 1
-    ).values.sum() == 0, (
-        "There are multiple entries for the same host_id, abx_start_age_months"
-        " and abx_spectrum."
-    )
-
     # assert that abx_duration_days isn't <=0
     assert (
         md_abx["abx_duration_days"] <= 0
@@ -357,18 +315,16 @@ def validate_abx_all(md_abx: pd.DataFrame) -> None:
     # increasing by host_id
     check_increasing_abx_cum(
         md_abx,
-        ["broad", "narrow"],
+        ["any"],
         ["cumcount", "cumdur_days"],
         "abx_start_age_months",
     )
 
     # assert that abx_*_cumdur_days is sum of abx_duration_days per abx_spectrum
     # and host_id
-    for spec in ["broad", "narrow"]:
-        grouped = (
-            md_abx[md_abx["abx_spectrum"] == spec]
-            .groupby(["host_id", "abx_spectrum"])
-            .agg({"abx_duration_days": "sum", f"abx_{spec}_cumdur_days": "last"})
+    for spec in ["any"]:
+        grouped = md_abx.groupby(["host_id"]).agg(
+            {"abx_duration_days": "sum", f"abx_{spec}_cumdur_days": "last"}
         )
 
         assert (

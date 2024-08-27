@@ -310,6 +310,7 @@ def plot_diversity_difference(
         "div_alpha_shannon",
     ],
     matched=True,
+    test_zero_mean=False,
 ):
     dic_kw_results = {}
     for metric in div_metrics:
@@ -378,7 +379,7 @@ def plot_diversity_difference(
         unpaired_color = "sandybrown"
         paired_color = "darkgreen"
         dic_tests = {"unpaired": [1.2, unpaired_color], "paired": [1.1, paired_color]}
-        if matched:
+        if matched and test_zero_mean:
             # test if mean is significantly different from zero
             t1_val_zerom = [x for x in range(-3, 13)]
             result_df_zerom = test_mean_zero(
@@ -457,7 +458,7 @@ def plot_diversity_difference(
             ),
         ]
         legend_txt = ["unpaired to -1.0", "paired to -1.0"]
-        if matched:
+        if matched and test_zero_mean:
             custom_cross.append(
                 Line2D(
                     [0],
@@ -492,6 +493,7 @@ def calculate_nth_abx_effect_on_diversity(
         "div_alpha_observed_features",
         "div_alpha_shannon",
     ],
+    test_zero_mean=False,
 ):
     # only select samples that are around n-th abx exposure
     abx_nth_samples = select_samples_around_nth_abx_exposure(md_df, abx_df, n=n)
@@ -519,7 +521,12 @@ def calculate_nth_abx_effect_on_diversity(
         )
 
     fig, dic_kw_results = plot_diversity_difference(
-        abx_nth_samples, n, path_to_output, div_metrics, matched=True
+        abx_nth_samples,
+        n,
+        path_to_output,
+        div_metrics,
+        matched=True,
+        test_zero_mean=test_zero_mean,
     )
     return fig, dic_kw_results
 

@@ -11,6 +11,7 @@ import re
 import pandas as pd
 import qiime2 as q2
 from qiime2.plugins import cutadapt, demux
+
 from src import meta_processor as mproc
 
 
@@ -79,7 +80,7 @@ def trim_sequences(path2md, path2seq, threads):
             if type_of_reads == "PAIRED":
                 fwd_primer, rev_primer = tuple(re.findall(r"\[(.*?)\]", primers))
                 # great Q2forum post on parameters and explanation:
-                # https://forum.qiime2.org/t/cutadapt-adapter-vs-front/15450/2?u=adamova
+                # https://forum.qiime2.org/t/cutadapt-adapter-vs-front/15450/2?
                 # (5’) 515primer->fwd-sequence->index (3’) …
                 # (3’) index<-rev-sequence<-806primer (5’)
                 # front_f = 515, front_r = 806

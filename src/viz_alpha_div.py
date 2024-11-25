@@ -18,6 +18,12 @@ def read_and_prep_abx_exposure_data(path_to_abx):
     abx_df = pd.read_csv(path_to_abx, sep="\t")
     ls_abx_cols = ["host_id", "abx_start_age_months"]
     abx_df = abx_df[ls_abx_cols].sort_values(ls_abx_cols).drop_duplicates()
+
+    # HOTFIX: one host namely has abx_start_date given with 7.6 instead of 7.5,
+    # this was already wrongly written in the raw supp. data from original
+    # authors
+    abx_df.loc[abx_df["host_id"] == "E014403", "abx_start_age_months"] = 7.5
+
     return abx_df
 
 
@@ -166,13 +172,6 @@ def select_samples_around_nth_abx_exposure(md_df, abx_df, n=1):
     """
     get samples around n-th abx exposure (n=1 is first abx exposure, n=2 is
     second etc.)
-
-    Args:
-        md_df (_type_): _description_ abx_df (_type_): _description_ n (int,
-        optional): _description_. Defaults to 1.
-
-    Returns:
-        _type_: _description_
     """
     # indexing starts at zero
     n = n - 1
@@ -188,6 +187,9 @@ def select_samples_around_nth_abx_exposure(md_df, abx_df, n=1):
         diff_age_nth_abx=all_samples["age_months_rounded05"]
         - all_samples["age_nth_abx"]
     )
+    # avoid python precision problems
+    all_samples["diff_age_nth_abx"] = np.round(all_samples["diff_age_nth_abx"], 2)
+    # monthly rounding
     # round to full months for simplicity. note: added 0.01 since lots of 0.5
     # would otw be rounded down leading to uneven sample distribution
     all_samples["diff_age_nth_abx"] = all_samples["diff_age_nth_abx"] + 0.01
@@ -215,6 +217,15 @@ def select_samples_around_nth_abx_exposure(md_df, abx_df, n=1):
         ),
         :,
     ]
+
+    # fix -0.0: these are samples that were obtained prior to abx exposure!
+    # can be ignored if we go with 0.5 months resolution
+    bool_sample_prior = np.logical_and(
+        abx_nth_samples["age_months_rounded05"] < abx_nth_samples["age_nth_abx"],
+        abx_nth_samples["diff_age_nth_abx"] == -0.0,
+    )
+    abx_nth_samples.loc[bool_sample_prior, "diff_age_nth_abx"] = -1.0
+
     return abx_nth_samples
 
 

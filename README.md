@@ -69,8 +69,8 @@ python create_feature_table.py --tag $TAG  --n_threads $THREADS
 #### Description of the resulting feature table
 ... can be created in the notebook `scripts/describe_dataset.ipynb`.
 
-#### Analysis of matched alpha diversity after antibiotics exposure
-... can be created in the notebook `scripts/describe_matched_alpha.ipynb`.
+#### Analysis of temporal course of alpha diversity
+... can be created in the notebook `scripts/describe_alpha_diversity.ipynb`.
 
 #### Description of sequencing length and sample counts
 ... after each sequence processing step can be created in the notebook `scripts/describe_sequences.ipynb`.

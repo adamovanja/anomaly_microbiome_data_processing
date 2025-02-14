@@ -34,7 +34,7 @@ def display_diet_information(df, diet_var, age_var, row_label, title=""):
 
 
 def display_diet_information_in_one(df, diet_vars, age_var, row_label, title=""):
-    fig, axes = plt.subplots(2, 1, sharex=True, figsize=(9, 3), dpi=400)
+    fig, axes = plt.subplots(2, 1, sharex=True, figsize=(9, 4), dpi=400)
 
     for i, dv in enumerate(diet_vars):
         if dv == "diet_weaning":
@@ -66,9 +66,9 @@ def display_diet_information_in_one(df, diet_vars, age_var, row_label, title="")
             labels,
             title=legend_title.replace("_", " "),
             loc="upper right",
-            bbox_to_anchor=(1.18, 1.12),
+            bbox_to_anchor=(1.175, 1.0),
         )
-    fig.suptitle(title, fontsize=12, y=0.9)
+    fig.suptitle(title, fontsize=12, y=0.95)
     fig.tight_layout()
     return fig, axes
 

@@ -25,15 +25,6 @@ map_study_name = {
     # : '#ffff9f',
 }
 
-map_diet_milk = {
-    "bd": None,
-    "mixed": None,
-    "fd": None,
-    "no milk": None,
-    "unknown": None,
-}
-map_diet_milk = assign_cmap_colors(map_diet_milk, "Set3")
-
 map_diet_weaning = {
     "no": None,
     "yes": None,
@@ -41,6 +32,15 @@ map_diet_weaning = {
     "unknown": None,
 }
 map_diet_weaning = assign_cmap_colors(map_diet_weaning, "Set3", reverse=True)
+
+map_diet_milk = {
+    "bd": None,
+    "mixed": None,
+    "fd": None,
+    "unknown": None,
+}
+map_diet_milk = assign_cmap_colors(map_diet_milk, "Set3")
+map_diet_milk["unknown"] = map_diet_weaning["unknown"]
 
 map_delivery_mode = {
     "cesarean": None,

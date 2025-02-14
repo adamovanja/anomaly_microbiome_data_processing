@@ -95,7 +95,8 @@ def lineplot_all_div_metrics_over_time(
     fig, axs = plt.subplots(
         nb_covariates * 2,
         1,
-        figsize=(nb_covariates * 2, nb_covariates * 3.5),
+        figsize=(12, 20),
+        # figsize=(nb_covariates * 2, nb_covariates * 3.5),
         height_ratios=nb_covariates * [1, 0.3],
         dpi=400,
     )
@@ -136,10 +137,18 @@ def lineplot_all_div_metrics_over_time(
             )
 
         axs[2 * i].xaxis.set_major_locator(FixedLocator(np.arange(0, max_age, 1.0)))
-        axs[2 * i].set_xticklabels(np.arange(0, max_age, 1.0), rotation=90)
+        axs[2 * i].set_xticklabels(
+            np.arange(0, max_age, 1.0), rotation=0, ha="center", fontsize=8
+        )
+        axs[2 * i].set_xticklabels(axs[2 * i].get_xticks().astype(int))
 
         metric_name = metric.replace("div_alpha_", "")
-        axs[2 * i].set_title(f"Grouped by {group_by}", loc="left")
+        group_by_name = group_by.replace("_", " ")
+        axs[2 * i].set_title(
+            f"Alpha diversity grouped by {group_by_name}", loc="center", fontsize=14
+        )
+        if metric_name == "faith_pd":
+            metric_name = "Faith PD"
         axs[2 * i].set_ylabel(f"{metric_name}")
         axs[2 * i].set_xlim(-0.5, max_age - 0.5)
         axs[2 * i].set_xlabel("")
@@ -156,14 +165,19 @@ def lineplot_all_div_metrics_over_time(
         axs[2 * i + 1].xaxis.set_major_locator(
             FixedLocator(axs[2 * i + 1].get_xticks())
         )
-        axs[2 * i + 1].set_xticklabels(axs[2 * i + 1].get_xticklabels(), rotation=90)
-        axs[2 * i + 1].set_ylabel("Number of samples")
+        axs[2 * i + 1].set_xticklabels(
+            axs[2 * i + 1].get_xticklabels(), rotation=0, ha="center", fontsize=8
+        )
+        axs[2 * i + 1].set_xticklabels(axs[2 * i + 1].get_xticks().astype(int))
+        axs[2 * i + 1].set_ylabel("# samples")
+        axs[2 * i + 1].set_xlabel("Age [months]")
         axs[2 * i + 1].get_legend().remove()
 
     fig.subplots_adjust(hspace=-0.4, right=0.75, top=0.9)
     plt.tight_layout()
-    filename = os.path.join(path2save, "alpha_noabx_lineplot_splitcov.png")
-    plt.savefig(filename, dpi=400, bbox_inches="tight")
+    filename = os.path.join(path2save, "alpha_all_lineplot_splitcov.pdf")
+    print(filename)
+    plt.savefig(filename, dpi=400, bbox_inches="tight", format="pdf")
     plt.show()
 
 

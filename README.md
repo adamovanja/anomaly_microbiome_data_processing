@@ -77,3 +77,7 @@ python create_feature_table.py --tag $TAG  --n_threads $THREADS
 
 ## Contact
 In case of questions or comments feel free to raise an issue in this repository.
+
+## License
+
+This repository  is released under a BSD-3-Clause license. See LICENSE for more details.

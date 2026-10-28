@@ -70,13 +70,16 @@ python create_feature_table.py --tag $TAG  --n_threads $THREADS
 ... can be created in the notebook `scripts/describe_dataset.ipynb`.
 
 #### Analysis of temporal course of alpha diversity
-... can be created in the notebook `scripts/describe_alpha_diversity.ipynb`.
+... can be created in the notebook `scripts/describe_alpha_diversity.ipynb`. The age-adjusted differences in alpha diversity between infant groups shown there are computed in `src/alpha_div_stats.py`.
 
 #### Sensitivity of the post-antibiotic diversity deficit to the alpha diversity metric
 ... can be created with `scripts/metric_sensitivity/metric_sensitivity.py` (see the README in that folder).
 
 #### Description of sequencing length and sample counts
 ... after each sequence processing step can be created in the notebook `scripts/describe_sequences.ipynb`.
+
+## Tests
+Run `pytest` from the repository root (the tests in `tests/` cover `src/alpha_div_stats.py` and the grouped alpha diversity figure).
 
 ## Contact
 In case of questions or comments feel free to raise an issue in this repository.

@@ -72,6 +72,9 @@ python create_feature_table.py --tag $TAG  --n_threads $THREADS
 #### Analysis of temporal course of alpha diversity
 ... can be created in the notebook `scripts/describe_alpha_diversity.ipynb`.
 
+#### Sensitivity of the post-antibiotic diversity deficit to the alpha diversity metric
+... can be created with `scripts/metric_sensitivity/metric_sensitivity.py` (see the README in that folder).
+
 #### Description of sequencing length and sample counts
 ... after each sequence processing step can be created in the notebook `scripts/describe_sequences.ipynb`.
 

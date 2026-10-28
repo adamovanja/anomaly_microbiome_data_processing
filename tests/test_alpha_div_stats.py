@@ -18,8 +18,8 @@ def _cohort(
     n_samples=8,
     max_age=24,
 ):
-    """Infants with a constant group label and log-normal Faith PD "
-    "around an age trend."""
+    """Infants with a constant group label and log-normal Faith PD
+    around an age trend."""
     effects = effects or {}
     rows = []
     for i in range(n_infants):

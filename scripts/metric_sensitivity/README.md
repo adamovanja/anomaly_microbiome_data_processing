@@ -1,7 +1,7 @@
 # Sensitivity of the post-antibiotic diversity deficit to the alpha diversity metric
 
 Repeats the covariate-matched comparison of Fig. 4c of the manuscript for Faith PD and
-Shannon diversity (manuscript revision, reviewer 1, point 4). Deficits relative to matched
+Shannon diversity. Deficits relative to matched
 unexposed infants are expressed in percent of the matched mean so that both metrics share one
 axis; binning around the first to third exposure follows
 Fig. 4c (see the module docstring).

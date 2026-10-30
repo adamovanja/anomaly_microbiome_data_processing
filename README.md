@@ -67,7 +67,7 @@ python create_feature_table.py --tag $TAG  --n_threads $THREADS
 ### Down-stream data analyses
 
 #### Description of the resulting feature table
-... can be created in the notebook `scripts/describe_dataset.ipynb`.
+... can be created in the notebook `scripts/describe_dataset.ipynb`. Fig. 3 of the manuscript (`dataset.pdf`) is composed there by `src/viz_dataset.py`.
 
 #### Analysis of temporal course of alpha diversity
 ... can be created in the notebook `scripts/describe_alpha_diversity.ipynb`. The age-adjusted differences in alpha diversity between infant groups shown there are computed in `src/alpha_div_stats.py`.
@@ -79,7 +79,7 @@ python create_feature_table.py --tag $TAG  --n_threads $THREADS
 ... after each sequence processing step can be created in the notebook `scripts/describe_sequences.ipynb`.
 
 ## Tests
-Run `pytest` from the repository root (the tests in `tests/` cover `src/alpha_div_stats.py` and the grouped alpha diversity figure).
+Run `pytest` from the repository root (the tests in `tests/` cover `src/alpha_div_stats.py`, the grouped alpha diversity figure and the dataset figure).
 
 ## Contact
 In case of questions or comments feel free to raise an issue in this repository.

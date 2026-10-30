@@ -316,7 +316,12 @@ def _draw_scatter(ax, post: pd.DataFrame, conc: pd.DataFrame) -> None:
         ax.spines[side].set_visible(False)
 
 
-def build_figure(res: dict, out_pdf: Path, out_png: Path | None = None) -> None:
+LEGEND_GAP_PT = 3.0
+
+
+def compose_figure(res: dict):
+    """Box plots around the first three exposures (a-c), the legend centred below
+    them and the cross-metric scatter of the post-exposure deficits (d)."""
     fig = plt.figure(figsize=(9.5, 7.0), dpi=400)
     grid = fig.add_gridspec(2, 6, height_ratios=[1.0, 0.95], hspace=0.5, wspace=1.1)
     top = [fig.add_subplot(grid[0, 2 * i : 2 * i + 2]) for i in range(3)]
@@ -346,14 +351,6 @@ def build_figure(res: dict, out_pdf: Path, out_png: Path | None = None) -> None:
             label="deficit larger than in bin -1 (* p<0.1, ** p<0.05)",
         ),
     ]
-    fig.legend(
-        handles=handles,
-        loc="lower center",
-        ncol=4,
-        fontsize=7.5,
-        frameon=False,
-        bbox_to_anchor=(0.5, 0.955),
-    )
     bottom = fig.add_subplot(grid[1, 1:5])
     _draw_scatter(bottom, post_exposure_samples(res["windows"]), res["concordance"])
     for ax, letter in zip(top + [bottom], "abcd"):
@@ -367,6 +364,27 @@ def build_figure(res: dict, out_pdf: Path, out_png: Path | None = None) -> None:
             va="bottom",
         )
     fig.subplots_adjust(left=0.08, right=0.98, top=0.9, bottom=0.08)
+    # one legend for the panels with stars, centred below them
+    fig.draw_without_rendering()
+    labels_bottom = min(ax.xaxis.label.get_window_extent().y0 for ax in top)
+    centre = (top[0].get_position().x0 + top[-1].get_position().x1) / 2
+    fig.legend(
+        handles=handles,
+        loc="upper center",
+        ncol=4,
+        fontsize=7.5,
+        frameon=False,
+        borderaxespad=0.0,
+        bbox_to_anchor=(
+            centre,
+            (labels_bottom - LEGEND_GAP_PT * fig.dpi / 72) / fig.bbox.height,
+        ),
+    )
+    return fig
+
+
+def build_figure(res: dict, out_pdf: Path, out_png: Path | None = None) -> None:
+    fig = compose_figure(res)
     fig.savefig(out_pdf, format="pdf", bbox_inches="tight")
     if out_png is not None:
         fig.savefig(out_png, format="png", dpi=200, bbox_inches="tight")

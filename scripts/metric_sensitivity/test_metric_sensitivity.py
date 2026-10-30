@@ -177,3 +177,19 @@ def test_real_data_outputs(tmp_path):
     pooled = res["concordance"].set_index("exposure")
     assert pooled.loc["pooled", "spearman_rho"] > 0.5
     assert set(res["ft"].columns) >= set(ms.METRICS) and len(ms.METRICS) == 2
+
+
+@pytest.mark.skipif(not REAL_DATA, reason="final feature table not available")
+def test_legend_below_the_box_plot_row_above_the_scatter():
+    fig = ms.compose_figure(ms.run())
+    fig.canvas.draw()
+    (legend,) = fig.legends
+    box = legend.get_window_extent()
+    top, scatter = fig.axes[:3], fig.axes[3]
+    # below the x labels of the box plots, which carry the stars
+    assert box.y1 <= min(ax.xaxis.label.get_window_extent().y0 for ax in top)
+    # above the scatter panel and its letter
+    letter = [t for t in scatter.texts if t.get_text() == "d"][0]
+    assert box.y0 >= letter.get_window_extent().y1
+    centre = (top[0].get_window_extent().x0 + top[-1].get_window_extent().x1) / 2
+    assert abs((box.x0 + box.x1) / 2 - centre) < 1.0

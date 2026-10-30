@@ -27,3 +27,9 @@ src/__pycache__/
 slurm_*.sh
 *_out.txt
 x_*
+.pytest_cache/
+
+# outputs of scripts/metric_sensitivity (recreated by metric_sensitivity.py)
+scripts/metric_sensitivity/*.csv
+scripts/metric_sensitivity/*.png
+scripts/metric_sensitivity/*.pdf

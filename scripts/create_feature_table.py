@@ -199,6 +199,15 @@ def create_feature_table(tag, n_threads, path_to_data="../data/raw"):
     # get sampling depth
     md_df, freq_df = get_relative_abund_n_sampling_depth(md_df, freq_df)
 
+    # save feature table with relative abundance data for future reference
+    # prefix all columns in freq_df with F
+    freq_df_pref = freq_df.copy()
+    freq_df_pref.columns = [f"F_{col}" for col in freq_df_pref.columns]
+    ft_rel_abd = pd.merge(md_df, freq_df_pref, left_index=True, right_index=True)
+    ft_rel_abd.to_csv(
+        os.path.join(path_to_ft, f"ft_vat19_anomaly_v{tag}_rel_abd.tsv"), sep="\t"
+    )
+
     # merge and save final datasets
     for name, ls_entero in enteropathogens.items():
         new_col_name = f"rel_abd_enteropathogens_{name}"

@@ -1,15 +1,20 @@
 import os
 import warnings
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from matplotlib.ticker import AutoLocator, FixedLocator
+from matplotlib.ticker import AutoLocator
 from scipy.stats import mannwhitneyu, wilcoxon
 
+from src.alpha_div_stats import format_p
+
 warnings.simplefilter(action="ignore", category=FutureWarning)
-plt.rcParams.update({"font.family": "DejaVu Sans"})
+plt.rcParams.update(
+    {"font.family": "DejaVu Sans", "pdf.fonttype": 42, "ps.fonttype": 42}
+)
 plt.style.use("tableau-colorblind10")
 
 
@@ -85,100 +90,190 @@ def boxplot_all_div_metrics_over_time(
     plt.show()
 
 
-def lineplot_all_div_metrics_over_time(
-    noabx, metric, x_axis, group_by_values, path2save
-):
-    # todo: fix to work independently of noabx properties
-    # TODO: make bottom boxplot in matplotlib as above and sharex properly
-    # TODO: remove x_label in top plots
-    nb_covariates = len(group_by_values)
-    fig, axs = plt.subplots(
-        nb_covariates * 2,
-        1,
-        figsize=(12, 20),
-        # figsize=(nb_covariates * 2, nb_covariates * 3.5),
-        height_ratios=nb_covariates * [1, 0.3],
-        dpi=400,
+FIGSIZE = (5.17, 5.5)
+FIGURE_STEM = "alpha_all_lineplot_splitcov"
+LETTERS = "abcdefgh"
+
+
+def group_trajectory_stats(df, metric, x_axis, group):
+    """Mean, standard deviation and count per age bin and group; the standard
+    deviation is NaN for bins with a single sample."""
+    stats = df.groupby([x_axis, group])[metric].agg(["mean", "std", "count"])
+    return stats.reset_index()
+
+
+def level_colors(levels, reference):
+    """Colors of the seaborn husl palette assigned in sorted level order; the
+    returned dictionary lists the reference level first (legend order)."""
+    ordered = sorted(set(levels))
+    palette = dict(zip(ordered, sns.color_palette("husl", len(ordered)).as_hex()))
+    legend_order = [reference] + [lvl for lvl in ordered if lvl != reference]
+    return {lvl: palette[lvl] for lvl in legend_order}
+
+
+def _style_axis(ax, base_font):
+    for side in ("top", "right"):
+        ax.spines[side].set_visible(False)
+    for side in ("left", "bottom"):
+        ax.spines[side].set_linewidth(0.6)
+    ax.tick_params(labelsize=base_font, length=2, width=0.6, pad=1.5)
+
+
+def _draw_trajectories(ax, panel, metric, x_axis, base_font):
+    traj = group_trajectory_stats(panel.data, metric, x_axis, panel.group)
+    colors = level_colors(traj[panel.group], panel.reference)
+    for level, color in colors.items():
+        g = traj[traj[panel.group] == level].sort_values(x_axis)
+        ax.plot(g[x_axis], g["mean"], color=color, lw=1.1, label=panel.label(level))
+        ax.fill_between(
+            g[x_axis],
+            g["mean"] - g["std"],
+            g["mean"] + g["std"],
+            color=color,
+            alpha=0.2,
+            lw=0,
+        )
+    ax.legend(
+        loc="lower right",
+        fontsize=base_font - 0.5,
+        frameon=False,
+        handlelength=1.2,
+        labelspacing=0.2,
+        borderpad=0.2,
+        borderaxespad=0.3,
     )
-    # min_age = noabx[x_axis].min()
-    max_age = int(noabx[x_axis].max()) + 1
-    index_df = pd.DataFrame({x_axis: np.arange(0, max_age, 1.0)})
-    for i, group_by in enumerate(group_by_values):
-        mean_df = noabx.groupby([x_axis, group_by])[metric].mean().reset_index()
-        std_df = noabx.groupby([x_axis, group_by])[metric].std().reset_index()
-        count_df = noabx.groupby([x_axis, group_by])[metric].count().reset_index()
+    return traj, colors
 
-        merged_df = pd.merge(
-            mean_df, std_df, on=[x_axis, group_by], suffixes=("_mean", "_std")
-        )
-        merged_df = pd.merge(merged_df, count_df, on=[x_axis, group_by])
-        merged_df.columns = list(merged_df.columns[:-1]) + ["count"]
 
-        palette = sns.color_palette("husl", len(merged_df[group_by].unique()))
-        line_plot = sns.lineplot(
-            x=x_axis,
-            y=f"{metric}_mean",
-            hue=group_by,
-            data=merged_df,
-            ax=axs[2 * i],
-            palette=palette,
-        )
-        axs[2 * i].legend(bbox_to_anchor=(1.02, 1), loc="upper left", borderaxespad=0)
-        # ensure correct order of colors
-        line_colors = [line.get_color() for line in line_plot.lines]
-        color_dict = dict(zip(merged_df[group_by].unique(), line_colors))
-        for name, group in merged_df.groupby(group_by):
-            axs[2 * i].fill_between(
-                group[x_axis],
-                group[f"{metric}_mean"] - group[f"{metric}_std"],
-                group[f"{metric}_mean"] + group[f"{metric}_std"],
-                color=color_dict[name],
-                alpha=0.3,
-            )
+def _draw_counts(ax, traj, colors, x_axis, group, max_age):
+    counts = (
+        traj.pivot(index=x_axis, columns=group, values="count")
+        .reindex(np.arange(1, max_age + 1))
+        .fillna(0)
+    )
+    bottom = np.zeros(len(counts))
+    for level, color in colors.items():
+        if level not in counts:
+            continue
+        ax.bar(counts.index, counts[level], bottom=bottom, width=0.8, color=color, lw=0)
+        bottom += counts[level].values
 
-        axs[2 * i].xaxis.set_major_locator(FixedLocator(np.arange(0, max_age, 1.0)))
-        axs[2 * i].set_xticklabels(
-            np.arange(0, max_age, 1.0), rotation=0, ha="center", fontsize=8
-        )
-        axs[2 * i].set_xticklabels(axs[2 * i].get_xticks().astype(int))
 
-        metric_name = metric.replace("div_alpha_", "")
-        group_by_name = group_by.replace("_", " ")
-        axs[2 * i].set_title(
-            f"Alpha diversity grouped by {group_by_name}", loc="center", fontsize=14
-        )
-        if metric_name == "faith_pd":
-            metric_name = "Faith PD"
-        axs[2 * i].set_ylabel(f"{metric_name}")
-        axs[2 * i].set_xlim(-0.5, max_age - 0.5)
-        axs[2 * i].set_xlabel("")
+def panels_by_p(panels, stats):
+    """Panels ordered by increasing joint p-value of their contrasts."""
+    p_joint = stats.groupby("panel")["p_joint"].first()
+    return sorted(panels, key=lambda panel: p_joint[panel.title])
 
-        count_df = pd.merge(index_df, count_df, on=x_axis, how="left")
-        sns.barplot(
-            x=x_axis,
-            y=metric,
-            data=count_df,
-            ax=axs[2 * i + 1],
-            hue=group_by,
-            palette=palette,
-        )
-        axs[2 * i + 1].xaxis.set_major_locator(
-            FixedLocator(axs[2 * i + 1].get_xticks())
-        )
-        axs[2 * i + 1].set_xticklabels(
-            axs[2 * i + 1].get_xticklabels(), rotation=0, ha="center", fontsize=8
-        )
-        axs[2 * i + 1].set_xticklabels(axs[2 * i + 1].get_xticks().astype(int))
-        axs[2 * i + 1].set_ylabel("# samples")
-        axs[2 * i + 1].set_xlabel("Age [months]")
-        axs[2 * i + 1].get_legend().remove()
 
-    fig.subplots_adjust(hspace=-0.4, right=0.75, top=0.9)
-    plt.tight_layout()
-    filename = os.path.join(path2save, "alpha_all_lineplot_splitcov.pdf")
-    print(filename)
-    plt.savefig(filename, dpi=400, bbox_inches="tight", format="pdf")
-    plt.show()
+def latex_pct(estimate, low, high):
+    """E.g. '$-9$~\\% [$-13$, $-5$]' (rounded, no negative zero)."""
+    est, lo, hi = (0.0 + round(v) for v in (estimate, low, high))
+    return f"${est:+.0f}$~\\% [${lo:.0f}$, ${hi:.0f}$]"
+
+
+def latex_p(p):
+    text = format_p(p)
+    return f"${text}$" if text.startswith("<") else text
+
+
+def latex_table(panels, stats):
+    """LaTeX tabular of the age-adjusted differences, variables ordered by
+    increasing joint p-value; the variable name and the p-value only on the
+    first row of each variable."""
+    lines = [
+        r"\begin{tabular}{l l l r}",
+        r"\toprule",
+        r"Variable & Contrast & Difference [95\% CI] & $p$ \\",
+        r"\midrule",
+    ]
+    for panel in panels_by_p(panels, stats):
+        rows = stats[stats["panel"] == panel.title].reset_index(drop=True)
+        for j, row in rows.iterrows():
+            cells = [
+                panel.title if j == 0 else "",
+                f"{panel.label(row['level'])} vs {panel.label(row['reference'])}",
+                latex_pct(row["pct_diff"], row["ci_low"], row["ci_high"]),
+                latex_p(row["p_joint"]) if j == 0 else "",
+            ]
+            lines.append(" & ".join(cells).rstrip() + r" \\")
+    lines += [r"\bottomrule", r"\end{tabular}"]
+    return "\n".join(lines) + "\n"
+
+
+def write_latex_table(panels, stats, path):
+    """Write the LaTeX table of age-adjusted differences and return its path."""
+    path = Path(path)
+    path.write_text(latex_table(panels, stats))
+    return path
+
+
+def build_group_figure(panels, metric, x_axis, base_font=7.0, ncols=2, figsize=FIGSIZE):
+    """Mean trajectories with standard deviation bands and monthly sample counts
+    per panel."""
+    nrows = -(-len(panels) // ncols)
+    fig = plt.figure(figsize=figsize, dpi=300)
+    outer = fig.add_gridspec(
+        nrows,
+        ncols,
+        left=0.085,
+        right=0.995,
+        top=0.965,
+        bottom=0.055,
+        hspace=0.5,
+        wspace=0.3,
+    )
+    max_age = int(max(p.data[x_axis].max() for p in panels))
+    ymax = 0.0
+    line_axes, count_axes = [], []
+    for i, panel in enumerate(panels):
+        inner = outer[divmod(i, ncols)].subgridspec(
+            2, 1, height_ratios=[1.0, 0.33], hspace=0.1
+        )
+        ax = fig.add_subplot(inner[0])
+        axc = fig.add_subplot(inner[1], sharex=ax)
+        traj, colors = _draw_trajectories(ax, panel, metric, x_axis, base_font)
+        _draw_counts(axc, traj, colors, x_axis, panel.group, max_age)
+        ymax = max(ymax, float((traj["mean"] + traj["std"].fillna(0)).max()))
+        ax.set_title(panel.title, fontsize=base_font + 1, loc="left", pad=3)
+        ax.text(
+            -0.19,
+            1.03,
+            LETTERS[i],
+            transform=ax.transAxes,
+            fontsize=base_font + 2,
+            fontweight="bold",
+            va="bottom",
+            ha="left",
+        )
+        ax.set_ylabel("Faith PD", fontsize=base_font)
+        axc.set_ylabel("# samples", fontsize=base_font)
+        axc.set_xlabel("Age [months]", fontsize=base_font, labelpad=1)
+        ax.tick_params(labelbottom=False)
+        for a in (ax, axc):
+            _style_axis(a, base_font)
+        line_axes.append(ax)
+        count_axes.append(axc)
+    for ax in line_axes:
+        ax.set_xlim(0.5, max_age + 0.5)
+        ax.set_xticks(np.arange(0, max_age + 1, 6))
+        ax.set_ylim(0, ymax * 1.04)
+    for col in range(ncols):
+        fig.align_ylabels(
+            [a for i, a in enumerate(line_axes) if i % ncols == col]
+            + [a for i, a in enumerate(count_axes) if i % ncols == col]
+        )
+    return fig
+
+
+def lineplot_alpha_by_groups(panels, metric, x_axis, path2save, stem=FIGURE_STEM):
+    """Save the grouped trajectory figure as PDF (and PNG) and return the PDF path."""
+    fig = build_group_figure(panels, metric, x_axis)
+    path2save = Path(path2save)
+    pdf = path2save / f"{stem}.pdf"
+    fig.savefig(pdf, format="pdf", bbox_inches="tight")
+    fig.savefig(path2save / f"{stem}.png", format="png", dpi=200, bbox_inches="tight")
+    print(pdf)
+    return pdf
 
 
 def calculate_mean_diversity_per_cov(noabx, metric, cov_groups):

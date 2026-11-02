@@ -65,6 +65,7 @@ Once the previous commands worked successfully you can create the final feature 
 cd scripts
 python create_feature_table.py --tag $TAG  --n_threads $THREADS
 ````
+`--n_threads` also sets the number of worker processes that compute the 500 rarefactions of each alpha diversity metric (at most the number of CPUs minus two; ~15 min with `--n_threads 10`).
 
 ### Down-stream data analyses
 
@@ -81,7 +82,7 @@ python create_feature_table.py --tag $TAG  --n_threads $THREADS
 ... after each sequence processing step can be created in the notebook `scripts/describe_sequences.ipynb`.
 
 ## Tests
-Run `pytest` from the repository root (the tests in `tests/` cover `src/alpha_div_stats.py`, the grouped alpha diversity figure and the dataset figure).
+Run `pytest` from the repository root (the tests in `tests/` cover the rarefied alpha diversity metrics, the antibiotic exposure flags of the T1D subcohort, `src/alpha_div_stats.py`, the grouped alpha diversity figure and the dataset figure).
 
 ## Contact
 In case of questions or comments feel free to raise an issue in this repository.

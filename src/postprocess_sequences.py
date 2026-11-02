@@ -3,8 +3,10 @@ import os
 import subprocess
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import qiime2 as q2
+from joblib import Parallel, delayed
 from qiime2.plugins import diversity, feature_table
 
 plt.rcParams.update({"font.family": "DejaVu Sans"})
@@ -108,13 +110,18 @@ def _load_silva_phylo_tree(path_to_get, n_threads):
     return q2.Artifact.load(path2tree)
 
 
-def bootstrapped_alpha_div(
-    div_metric, freq_df, rarefaction_depth, path_to_phylo, n_threads, n=100
-) -> pd.Series:
-    df_alpha = pd.DataFrame(index=freq_df.index)
+def _alpha_of_rarefactions(
+    div_metric, freq_df, rarefaction_depth, path_to_phylo, n_threads, iterations
+) -> list:
     freq_art = q2.Artifact.import_data("FeatureTable[Frequency]", freq_df)
+    tree_art = (
+        _load_silva_phylo_tree(path_to_phylo, n_threads)
+        if div_metric == "faith_pd"
+        else None
+    )
 
-    for i in range(0, n):
+    ls_alpha = []
+    for i in iterations:
         # todo: add seed once it's available
         (rarefied_table,) = feature_table.actions.rarefy(
             table=freq_art, sampling_depth=rarefaction_depth
@@ -122,7 +129,6 @@ def bootstrapped_alpha_div(
 
         # calculating alpha diversity
         if div_metric == "faith_pd":
-            tree_art = _load_silva_phylo_tree(path_to_phylo, n_threads)
             (i_alpha_tab,) = diversity.actions.alpha_phylogenetic(
                 table=rarefied_table, metric=div_metric, phylogeny=tree_art
             )
@@ -132,9 +138,53 @@ def bootstrapped_alpha_div(
             )
         i_alpha_ser = i_alpha_tab.view(pd.Series)
         i_alpha_ser.name = f"{div_metric}_{i}"
-        df_alpha = df_alpha.merge(
-            i_alpha_ser.to_frame(), left_index=True, right_index=True
+        ls_alpha.append(i_alpha_ser)
+    return ls_alpha
+
+
+def _n_workers(n_threads, n):
+    """Worker processes for n rarefactions: at most n_threads, leaving two CPUs
+    of the machine free for other work."""
+    return max(1, min(n_threads, n, (os.cpu_count() or 1) - 2))
+
+
+def rarefied_alpha_runs(
+    div_metric, freq_df, rarefaction_depth, path_to_phylo, n_threads, n=100
+) -> pd.DataFrame:
+    """
+    Alpha diversity of n independent rarefactions of freq_df (one column per
+    rarefaction). The rarefactions are split into chunks that run in parallel
+    worker processes (see _n_workers); each rarefaction draws from its own
+    random generator (biom subsample with seed=None).
+    """
+    if div_metric == "faith_pd":
+        # build the tree once before the workers load it
+        _load_silva_phylo_tree(path_to_phylo, n_threads)
+
+    n_workers = _n_workers(n_threads, n)
+    chunks = np.array_split(np.arange(n), n_workers)
+    alpha_per_chunk = Parallel(n_jobs=n_workers)(
+        delayed(_alpha_of_rarefactions)(
+            div_metric, freq_df, rarefaction_depth, path_to_phylo, n_threads, chunk
         )
+        for chunk in chunks
+    )
+
+    df_alpha = pd.DataFrame(index=freq_df.index)
+    for ls_alpha in alpha_per_chunk:
+        for i_alpha_ser in ls_alpha:
+            df_alpha = df_alpha.merge(
+                i_alpha_ser.to_frame(), left_index=True, right_index=True
+            )
+    return df_alpha
+
+
+def bootstrapped_alpha_div(
+    div_metric, freq_df, rarefaction_depth, path_to_phylo, n_threads, n=100
+) -> pd.Series:
+    df_alpha = rarefied_alpha_runs(
+        div_metric, freq_df, rarefaction_depth, path_to_phylo, n_threads, n=n
+    )
 
     # calculate mean over all iterations
     alpha_all = df_alpha.mean(axis=1)

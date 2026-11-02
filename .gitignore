@@ -6,6 +6,8 @@ __pycache__/
 
 data/*
 !data/final/
+# full relative-abundance table written by create_feature_table.py (not used downstream)
+data/final/*_rel_abd.tsv
 !data/raw/
 data/raw/*
 !data/raw/trunc_len.json

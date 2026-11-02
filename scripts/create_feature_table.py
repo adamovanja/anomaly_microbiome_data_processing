@@ -22,8 +22,9 @@ def filter_metadata(path_md):
     md_df = pd.read_csv(path_md, sep="\t", index_col=0)
     md_df = md_df.loc[md_df["study_subcohort"].isin(["abx", "karelia", "t1d"])]
 
-    # filter out hosts from t1d that had abx event (no detailed info available
-    # these can only be used for noabx learning: 7 hosts = 140 samples)
+    # filter out hosts from t1d that had abx event (only the age windows of the
+    # courses are available); the remaining unexposed t1d hosts can only be
+    # used for noabx learning: 7 hosts = 140 samples
     excl_t1d_samples = md_df.loc[
         ((md_df["study_subcohort"] == "t1d") & (md_df["abx_ever"] == True))
     ].index.tolist()

@@ -349,8 +349,9 @@ def add_abx_info_t1d(path2t1d, md_both):
     )
 
     t1d_abx = t1d_abx[["host_id"] + col_abx].set_index("host_id")
-    no_abx_ever = t1d_abx.count(axis=1) == 0
-    t1d_abx_ever = no_abx_ever.to_frame().reset_index()
+    # ever exposed = at least one recorded antibiotic course
+    abx_ever = t1d_abx.count(axis=1) > 0
+    t1d_abx_ever = abx_ever.to_frame().reset_index()
     t1d_abx_ever.rename(columns={0: "abx_ever_t1d"}, inplace=True)
 
     # merge with df_both

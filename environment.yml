@@ -24,6 +24,7 @@ dependencies:
   - isort
   - imageio
   - ipykernel
+  - joblib
   - joypy
   - openpyxl
   - pre-commit

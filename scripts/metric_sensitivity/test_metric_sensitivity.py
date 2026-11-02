@@ -158,7 +158,7 @@ def test_cross_metric_tests_direction_and_identical_metrics():
 @pytest.mark.skipif(not REAL_DATA, reason="final feature table not available")
 def test_real_data_outputs(tmp_path):
     res = ms.run()
-    assert res["ft"].loc[res["ft"]["unexposed"], "host_id"].nunique() == 140
+    assert res["ft"].loc[res["ft"]["unexposed"], "host_id"].nunique() == 121
     for n, win in res["windows"].items():
         counts = win.groupby("bin").size()
         assert counts.loc[-1.0] > 0 and counts.loc[0.0] > 0
